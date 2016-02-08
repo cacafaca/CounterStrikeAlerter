@@ -69,7 +69,8 @@ namespace CSA.ViewModel
             if (newPlayerDifferences.Count() > 0)
             {
                 IsPlayersChanged = true;
-                foreach (var player in Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)))
+                notification.AppendLine(Server.ServerModel.ToString());
+                foreach (var player in Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Frags))
                 {
                     notification.AppendLine("New player> " + player.ToString());
                 }

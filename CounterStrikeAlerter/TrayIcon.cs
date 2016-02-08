@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace CounterStrikeAlerter
 {
-    public class TrayIcon
+    public class TrayIcon : IDisposable
     {
         NotifyIcon NotifyIcon;
         public TrayIcon()
@@ -15,6 +15,11 @@ namespace CounterStrikeAlerter
             NotifyIcon = new NotifyIcon();
             NotifyIcon.Icon = Properties.Resources.cstrike;
             NotifyIcon.Visible = true;
+        }
+
+        public void Dispose()
+        {
+            NotifyIcon.Icon = null;
         }
     }
 }
