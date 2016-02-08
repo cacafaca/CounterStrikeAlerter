@@ -15,7 +15,7 @@ namespace CSA.Model
             set
             {
                 _Name = value;
-                RaisePropertyChanged(Name);
+                RaisePropertyChanged(nameof(Name));
             }
         }
         private string _Name;
@@ -28,7 +28,7 @@ namespace CSA.Model
             set
             {
                 _Frags = value;
-                RaisePropertyChanged(Frags);
+                RaisePropertyChanged(nameof(Frags));
             }
         }
 
@@ -40,7 +40,7 @@ namespace CSA.Model
             set
             {
                 _Time = value;
-                RaisePropertyChanged(Time);
+                RaisePropertyChanged(nameof(Time));
             }
         }
 

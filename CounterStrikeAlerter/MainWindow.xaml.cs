@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using CSA.ViewModel;
+using System.Windows.Interop;
 
 namespace CounterStrikeAlerter
 {
@@ -22,16 +24,32 @@ namespace CounterStrikeAlerter
     {
         public MainWindow()
         {
+            DataContext = new ServerMonitor(new CSA.ViewModel.Server("193.104.68.49", 27040));
             InitializeComponent();
             CustomInitialization();
+
+            StartMonitoring();
         }
 
         private void CustomInitialization()
         {
-            WindowState = WindowState.Minimized;
-            ShowInTaskbar = false;
+            //WindowState = WindowState.Minimized;
+            //ShowInTaskbar = false;
             TrayIcon = new TrayIcon();
+            Icon = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.cstrike.ToBitmap().GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
+                BitmapSizeOptions.FromEmptyOptions());
         }
+
         TrayIcon TrayIcon;
+
+        private void StartMonitoring()
+        {
+            ((ServerMonitor)DataContext).StartMonitoring();
+        }
+
+        private void notificationLabel_SourceUpdated(object sender, DataTransferEventArgs e)
+        {
+
+        }
     }
 }

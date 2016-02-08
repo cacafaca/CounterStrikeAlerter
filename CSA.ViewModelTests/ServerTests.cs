@@ -16,7 +16,7 @@ namespace CSA.ViewModel.Tests
         {
             Server server = new Server("192.168.0.147", 27015);
             //Server server = new Server("192.168.0.255", 0);
-            server.QueryServer();
+            server.QueryServerHeader();
             Assert.AreEqual("Brezna Arena".ToLower(), server.ServerModel.Name.ToLower());
         }
 

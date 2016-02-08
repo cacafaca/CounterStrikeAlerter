@@ -10,10 +10,10 @@ namespace CSA.Model
     public abstract class BaseModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(object property)
+        protected void RaisePropertyChanged(string propertyName)
         {
             if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(property.GetType().Name));
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
     }

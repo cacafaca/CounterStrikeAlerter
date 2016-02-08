@@ -24,7 +24,7 @@ namespace CSA.Model
             set
             {
                 _Address = value;
-                RaisePropertyChanged(Address);
+                RaisePropertyChanged(nameof(Address));
             }
         }
 
@@ -35,7 +35,7 @@ namespace CSA.Model
             set
             {
                 _Port = value;
-                RaisePropertyChanged(Port);
+                RaisePropertyChanged(nameof(Port));
             }
         }
 
@@ -46,7 +46,7 @@ namespace CSA.Model
             set
             {
                 _Map = value;
-                RaisePropertyChanged(Map);
+                RaisePropertyChanged(nameof(Map));
             }
         }
 
@@ -57,7 +57,7 @@ namespace CSA.Model
             set
             {
                 _Name = value;
-                RaisePropertyChanged(Name);
+                RaisePropertyChanged(nameof(Name));
             }
         }
 
@@ -68,7 +68,7 @@ namespace CSA.Model
             set
             {
                 _Game = value;
-                RaisePropertyChanged(GameDir);
+                RaisePropertyChanged(nameof(GameDir));
             }
         }
 
@@ -79,7 +79,7 @@ namespace CSA.Model
             set
             {
                 _GameType = value;
-                RaisePropertyChanged(GameDescription);
+                RaisePropertyChanged(nameof(GameDescription));
             }
         }
 
@@ -90,7 +90,7 @@ namespace CSA.Model
             set
             {
                 _AppId = value;
-                RaisePropertyChanged(AppId);
+                RaisePropertyChanged(nameof(AppId));
             }
         }
 
@@ -101,7 +101,7 @@ namespace CSA.Model
             set
             {
                 _CurrentNumberOfPlayers = value;
-                RaisePropertyChanged(CurrentNumberOfPlayers);
+                RaisePropertyChanged(nameof(CurrentNumberOfPlayers));
             }
         }
 
@@ -112,7 +112,7 @@ namespace CSA.Model
             set
             {
                 _MaxPlayers = value;
-                RaisePropertyChanged(MaxPlayers);
+                RaisePropertyChanged(nameof(MaxPlayers));
             }
         }
 
@@ -123,7 +123,7 @@ namespace CSA.Model
             set
             {
                 _Bots = value;
-                RaisePropertyChanged(Bots);
+                RaisePropertyChanged(nameof(Bots));
             }
         }
 
@@ -134,7 +134,7 @@ namespace CSA.Model
             set
             {
                 _ServerType = value;
-                RaisePropertyChanged(ServerType);
+                RaisePropertyChanged(nameof(ServerType));
             }
         }
 
@@ -145,7 +145,7 @@ namespace CSA.Model
             set
             {
                 _OperatingSystem = value;
-                RaisePropertyChanged(OperatingSystem);
+                RaisePropertyChanged(nameof(OperatingSystem));
             }
         }
 
@@ -156,7 +156,7 @@ namespace CSA.Model
             set
             {
                 _Password = value;
-                RaisePropertyChanged(Password);
+                RaisePropertyChanged(nameof(Password));
             }
         }
 
@@ -167,7 +167,7 @@ namespace CSA.Model
             set
             {
                 _Secure = value;
-                RaisePropertyChanged(Secure);
+                RaisePropertyChanged(nameof(Secure));
             }
         }
 
@@ -178,7 +178,7 @@ namespace CSA.Model
             set
             {
                 _Version = value;
-                RaisePropertyChanged(Version);
+                RaisePropertyChanged(nameof(Version));
             }
         }
         
@@ -189,8 +189,13 @@ namespace CSA.Model
             set
             {
                 _Players = value;
-                RaisePropertyChanged(Players);
+                RaisePropertyChanged(nameof(Players));
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Server name:{0}; Map:{1}; Players/Max:{2}/{3}", _Name, _Map, _CurrentNumberOfPlayers, _MaxPlayers);
         }
     }
 }

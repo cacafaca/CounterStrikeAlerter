@@ -19,21 +19,10 @@ namespace CSA.ViewModel
             SocketUDP = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         }
 
-        public void QueryServer()
+        public void QueryServerHeader()
         {
             string serverQueryStr = "\xFF\xFF\xFF\xFFTSource Engine Query\x00";
-            byte[] serverQueryByte = Encoding.Default.GetBytes(serverQueryStr);
-            var endPoint = new IPEndPoint(IPAddress.Parse(_ServerModel.Address), _ServerModel.Port);
-            var x = SocketUDP.SendTo(serverQueryByte, endPoint);
-
-            byte[] receive = new byte[1024];
-            var endPoint2 = endPoint as EndPoint;
-            int count = SocketUDP.ReceiveFrom(receive, ref endPoint2);
-            string output = string.Empty;
-            if (count > 0)
-            {
-                output = Encoding.Default.GetString(receive).Remove(count);
-            }
+            string output = AskServer(serverQueryStr);
             ParseServerInfo(output);
         }
 
@@ -127,12 +116,14 @@ namespace CSA.ViewModel
                 player.Name = GetNextStringAndRemove(ref rawPlayers);
                 player.Frags = GetNextIntAndRemove(ref rawPlayers);
                 player.Time = TimeSpan.FromSeconds(GetNextFloatAndRemove(ref rawPlayers));
-                _ServerModel.Players.Add(player);                
+                _ServerModel.Players.Add(player);
             }
         }
 
         public void QueryPlayers()
         {
+            _ServerModel.Players.Clear();
+
             // Challenge server before fetching players list.
             string challengeQueryStr = "\xFF\xFF\xFF\xFFU\xFF\xFF\xFF\xFF";
             string output = AskServer(challengeQueryStr);
@@ -159,6 +150,12 @@ namespace CSA.ViewModel
                 output = Encoding.Default.GetString(receive).Remove(count);
             }
             return output;
+        }
+
+        public void QueryServer()
+        {
+            QueryServerHeader();
+            QueryPlayers();
         }
     }
 
