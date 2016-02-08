@@ -14,7 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CSA.ViewModel;
 using System.Windows.Interop;
-using System.Windows.Forms;
+using System.ComponentModel;
+using System.Windows.Threading;
 
 namespace CounterStrikeAlerter
 {
@@ -40,14 +41,28 @@ namespace CounterStrikeAlerter
             TrayIcon = new TrayIcon();
             Icon = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.cstrike.ToBitmap().GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
+
+            DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ContentControl.ContentProperty, typeof(Label));
+            if (dpd != null)
+            {
+                dpd.AddValueChanged(notificationLabel, delegate
+                {
+                    if (Visibility == Visibility.Hidden)
+                        Show();
+                    Dispatcher.Invoke(delegate () { }, DispatcherPriority.Render);
+                    Topmost = true;
+                    System.Threading.Thread.Sleep(15000);
+                    Hide();
+                });
+            }
         }
 
         private void SetWindowLocationAndSize()
         {
             Width = 400;
             Height = 200;
-            Top = Screen.PrimaryScreen.WorkingArea.Height - Height - 10;
-            Left = Screen.PrimaryScreen.WorkingArea.Width - Width - 10;
+            Top = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height - Height - 10;
+            Left = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width - Width - 10;
         }
 
         TrayIcon TrayIcon;
@@ -57,14 +72,10 @@ namespace CounterStrikeAlerter
             ((ServerMonitor)DataContext).StartMonitoring();
         }
 
-        private void notificationLabel_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-
-        }
-
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TrayIcon.Dispose();
         }
+
     }
 }
