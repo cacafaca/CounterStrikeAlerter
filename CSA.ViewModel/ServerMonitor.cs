@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,12 @@ namespace CSA.ViewModel
         {
             while (true)
             {
-                NotifyText = GetServerInfoNotification();
+                //NotifyText = GetServerInfoNotification();
+
+                // Player change.
+                string newNotification = GetPlayerChanges();
+                if (IsPlayersChanged)
+                    NotifyText = newNotification;
 
                 System.Threading.Thread.Sleep(MonitorSleepInterval);
                 if (MonitorWorker.CancellationPending)
@@ -51,6 +57,34 @@ namespace CSA.ViewModel
                 notification.AppendLine(player.ToString());
             return notification.ToString();
         }
+
+        private string GetPlayerChanges()
+        {
+            Server.QueryServer();
+            StringBuilder notification = new StringBuilder();
+
+            IEnumerable<string> newPlayerDifferences = Server.ServerModel.Players.Select(player => player.Name).Except(OldPlayerNamesList);
+
+            // Look for a new players.
+            if (newPlayerDifferences.Count() > 0)
+            {
+                IsPlayersChanged = true;
+                foreach (var player in Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)))
+                {
+                    notification.AppendLine("New player> " + player.ToString());
+                }
+                OldPlayerNamesList.Clear();
+                foreach (var player in Server.ServerModel.Players)
+                    OldPlayerNamesList.Add(player.Name);
+            }
+            else
+                IsPlayersChanged = false;
+
+            return notification.ToString();
+        }
+
+        List<string> OldPlayerNamesList = new List<string>();
+        bool IsPlayersChanged = false;
 
         public void StartMonitoring()
         {
