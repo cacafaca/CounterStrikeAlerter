@@ -17,6 +17,7 @@ namespace CSA.ViewModel
         {
             _ServerModel = new CSA.Model.Server(address, port);
             SocketUDP = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            SocketUDP.Blocking = false;
         }
 
         public void QueryServerHeader()
@@ -30,29 +31,32 @@ namespace CSA.ViewModel
 
         private void ParseServerInfo(string rawServerInfo)
         {
-            // Remove unnecessary header data
-            rawServerInfo = rawServerInfo.Remove(0, 6);
+            if (!string.IsNullOrEmpty(rawServerInfo))
+            {
+                // Remove unnecessary header data
+                rawServerInfo = rawServerInfo.Remove(0, 6);
 
-            _ServerModel.Name = GetNextStringAndRemove(ref rawServerInfo);
-            _ServerModel.Map = GetNextStringAndRemove(ref rawServerInfo);
-            _ServerModel.GameDir = GetNextStringAndRemove(ref rawServerInfo);
-            _ServerModel.GameDescription = GetNextStringAndRemove(ref rawServerInfo);
-            _ServerModel.AppId = GetNextShortAndRemove(ref rawServerInfo);
-            _ServerModel.CurrentNumberOfPlayers = GetNextByteAndRemove(ref rawServerInfo);
-            _ServerModel.MaxPlayers = GetNextByteAndRemove(ref rawServerInfo);
-            _ServerModel.Bots = GetNextByteAndRemove(ref rawServerInfo);
-            _ServerModel.ServerType = (Model.ServerType)GetNextByteAndRemove(ref rawServerInfo);
-            _ServerModel.OperatingSystem = (Model.OperatingSystem)GetNextByteAndRemove(ref rawServerInfo);
-            _ServerModel.Password = GetNextByteAndRemove(ref rawServerInfo) > 0;
-            _ServerModel.Secure = GetNextByteAndRemove(ref rawServerInfo) > 0;
-            if (_ServerModel.AppId == 2400)
-                for (int i = 0; i < 3; i++)
-                    GetNextByteAndRemove(ref rawServerInfo);
-            _ServerModel.Version = GetNextStringAndRemove(ref rawServerInfo);
-            /*var edf = GetNextByteAndRemove(ref rawServerInfo);
-            short gamePort;
-            if ((edf & 0x80) > 0)
-                gamePort = GetNextShortAndRemove(ref rawServerInfo); */
+                _ServerModel.Name = GetNextStringAndRemove(ref rawServerInfo);
+                _ServerModel.Map = GetNextStringAndRemove(ref rawServerInfo);
+                _ServerModel.GameDir = GetNextStringAndRemove(ref rawServerInfo);
+                _ServerModel.GameDescription = GetNextStringAndRemove(ref rawServerInfo);
+                _ServerModel.AppId = GetNextShortAndRemove(ref rawServerInfo);
+                _ServerModel.CurrentNumberOfPlayers = GetNextByteAndRemove(ref rawServerInfo);
+                _ServerModel.MaxPlayers = GetNextByteAndRemove(ref rawServerInfo);
+                _ServerModel.Bots = GetNextByteAndRemove(ref rawServerInfo);
+                _ServerModel.ServerType = (Model.ServerType)GetNextByteAndRemove(ref rawServerInfo);
+                _ServerModel.OperatingSystem = (Model.OperatingSystem)GetNextByteAndRemove(ref rawServerInfo);
+                _ServerModel.Password = GetNextByteAndRemove(ref rawServerInfo) > 0;
+                _ServerModel.Secure = GetNextByteAndRemove(ref rawServerInfo) > 0;
+                if (_ServerModel.AppId == 2400)
+                    for (int i = 0; i < 3; i++)
+                        GetNextByteAndRemove(ref rawServerInfo);
+                _ServerModel.Version = GetNextStringAndRemove(ref rawServerInfo);
+                /*var edf = GetNextByteAndRemove(ref rawServerInfo);
+                short gamePort;
+                if ((edf & 0x80) > 0)
+                    gamePort = GetNextShortAndRemove(ref rawServerInfo); */
+            }
         }
 
         private string GetNextStringAndRemove(ref string raw)
@@ -105,18 +109,21 @@ namespace CSA.ViewModel
 
         private void ParsePlayersInfo(string rawPlayers)
         {
-            // Strip header
-            rawPlayers = rawPlayers.Remove(0, 5);
-
-            byte numberOfPlayers = GetNextByteAndRemove(ref rawPlayers);
-            for (byte i = 0; i < numberOfPlayers; i++)
+            if (!string.IsNullOrEmpty(rawPlayers))
             {
-                var player = new Model.Player();
-                GetNextByteAndRemove(ref rawPlayers);
-                player.Name = GetNextStringAndRemove(ref rawPlayers);
-                player.Frags = GetNextIntAndRemove(ref rawPlayers);
-                player.Time = TimeSpan.FromSeconds(GetNextFloatAndRemove(ref rawPlayers));
-                _ServerModel.Players.Add(player);
+                // Strip header
+                rawPlayers = rawPlayers.Remove(0, 5);
+
+                byte numberOfPlayers = GetNextByteAndRemove(ref rawPlayers);
+                for (byte i = 0; i < numberOfPlayers; i++)
+                {
+                    var player = new Model.Player();
+                    GetNextByteAndRemove(ref rawPlayers);
+                    player.Name = GetNextStringAndRemove(ref rawPlayers);
+                    player.Frags = GetNextIntAndRemove(ref rawPlayers);
+                    player.Time = TimeSpan.FromSeconds(GetNextFloatAndRemove(ref rawPlayers));
+                    _ServerModel.Players.Add(player);
+                }
             }
         }
 
@@ -127,12 +134,15 @@ namespace CSA.ViewModel
             // Challenge server before fetching players list.
             string challengeQueryStr = "\xFF\xFF\xFF\xFFU\xFF\xFF\xFF\xFF";
             string output = AskServer(challengeQueryStr);
-            var challenge = output.Remove(0, 5);
+            if (!string.IsNullOrEmpty(output))
+            {
+                string challenge = output.Remove(0, 5);
 
-            // Players
-            string playersQueryStr = "\xFF\xFF\xFF\xFFU" + challenge;
-            output = AskServer(playersQueryStr);
-            ParsePlayersInfo(output);
+                // Players
+                string playersQueryStr = "\xFF\xFF\xFF\xFFU" + challenge;
+                output = AskServer(playersQueryStr);
+                ParsePlayersInfo(output);
+            }
         }
 
         private string AskServer(string query)
@@ -143,11 +153,20 @@ namespace CSA.ViewModel
 
             byte[] receive = new byte[10240];
             var endPoint2 = endPoint as EndPoint;
-            int count = SocketUDP.ReceiveFrom(receive, ref endPoint2);
             string output = string.Empty;
-            if (count > 0)
+            System.Threading.Thread.Sleep(1000); // Give server one second to respond.
+            int count;
+            try
             {
-                output = Encoding.Default.GetString(receive).Remove(count);
+                count = SocketUDP.ReceiveFrom(receive, ref endPoint2);
+                if (count > 0)
+                {
+                    output = Encoding.Default.GetString(receive).Remove(count);
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
             return output;
         }
