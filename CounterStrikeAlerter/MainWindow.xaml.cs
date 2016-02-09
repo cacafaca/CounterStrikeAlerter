@@ -26,7 +26,7 @@ namespace CounterStrikeAlerter
     {
         public MainWindow()
         {
-            DataContext = new ServerMonitor(new CSA.ViewModel.Server("193.104.68.49", 27040));
+            DataContext = new ServerMonitor("193.104.68.49", 27040);
             InitializeComponent();
             CustomInitialization();
 
@@ -55,6 +55,13 @@ namespace CounterStrikeAlerter
                     Hide();
                 });
             }
+
+            TrayIcon.ExitHandler += TrayIcon_ExitHandler;
+        }
+
+        private void TrayIcon_ExitHandler(object sender, EventArgs e)
+        {
+            Close();
         }
 
         private void SetWindowLocationAndSize()

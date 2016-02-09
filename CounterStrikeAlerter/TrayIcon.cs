@@ -15,11 +15,26 @@ namespace CounterStrikeAlerter
             NotifyIcon = new NotifyIcon();
             NotifyIcon.Icon = Properties.Resources.cstrike;
             NotifyIcon.Visible = true;
+            AddContextmenu();
         }
 
         public void Dispose()
         {
             NotifyIcon.Icon = null;
+            NotifyIcon.ContextMenuStrip.Dispose();
         }
+
+        private void AddContextmenu()
+        {
+            NotifyIcon.ContextMenuStrip = new ContextMenuStrip();
+            NotifyIcon.ContextMenuStrip.Items.Add("Exit", null,
+                delegate (object sender, EventArgs e)
+                {
+                    if (ExitHandler != null)
+                        ExitHandler(sender, e);
+                });
+        }
+
+        public event EventHandler ExitHandler;
     }
 }

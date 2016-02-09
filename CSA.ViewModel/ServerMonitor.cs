@@ -15,6 +15,12 @@ namespace CSA.ViewModel
             Server = server;
             InitializeMonitorWorker();
         }
+
+        public ServerMonitor(string address, int port)
+            : this(new Server(address, port))
+        {
+        }
+
         BackgroundWorker MonitorWorker;
         Server Server;
         TimeSpan MonitorSleepInterval;
