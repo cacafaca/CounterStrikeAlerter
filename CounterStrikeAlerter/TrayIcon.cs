@@ -16,7 +16,15 @@ namespace CounterStrikeAlerter
             NotifyIcon.Icon = Properties.Resources.cstrike;
             NotifyIcon.Visible = true;
             AddContextmenu();
+            NotifyIcon.DoubleClick += NotifyIcon_DoubleClick;
         }
+
+        private void NotifyIcon_DoubleClick(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public event E
 
         public void Dispose()
         {

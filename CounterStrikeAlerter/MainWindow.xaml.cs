@@ -26,7 +26,8 @@ namespace CounterStrikeAlerter
     {
         public MainWindow()
         {
-            DataContext = new ServerMonitor("193.104.68.49", 27040);
+            //DataContext = new ServerMonitor("193.104.68.49", 27040);
+            DataContext = new ServerMonitor(Properties.Settings.Default.ServerAddress, Properties.Settings.Default.ServerPort);
             InitializeComponent();
             CustomInitialization();
 
@@ -42,6 +43,9 @@ namespace CounterStrikeAlerter
             Icon = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.cstrike.ToBitmap().GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
 
+            PutToSleep += MainWindow_PutToSleep;
+
+
             DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ContentControl.ContentProperty, typeof(Label));
             if (dpd != null)
             {
@@ -51,13 +55,30 @@ namespace CounterStrikeAlerter
                         Show();
                     Dispatcher.Invoke(delegate () { }, DispatcherPriority.Render);
                     Topmost = true;
-                    System.Threading.Thread.Sleep(15000);
-                    Hide();
+                    var timer = new System.Timers.Timer(15000);
+                    timer.Enabled = true;
+                    timer.Elapsed += Timer_Elapsed;
                 });
             }
 
             TrayIcon.ExitHandler += TrayIcon_ExitHandler;
         }
+
+        private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            this.Dispatcher.Invoke((Action)(() =>
+            {
+                Hide();
+            }));
+
+        }
+
+        private void MainWindow_PutToSleep(object sender, EventArgs e)
+        {
+            Hide();
+        }
+
+        private event EventHandler PutToSleep;
 
         private void TrayIcon_ExitHandler(object sender, EventArgs e)
         {
