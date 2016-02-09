@@ -61,9 +61,13 @@ namespace CSA.ViewModel
 
         private string GetNextStringAndRemove(ref string raw)
         {
+            string value = string.Empty;
             var endPosition = raw.IndexOf('\x0');
-            string value = raw.Substring(0, endPosition);
-            raw = raw.Remove(0, endPosition + 1);
+            if (endPosition > 0)
+            {
+                value = raw.Substring(0, endPosition);
+                raw = raw.Remove(0, endPosition + 1);
+            }
             return value;
         }
 

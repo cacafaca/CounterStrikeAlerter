@@ -73,9 +73,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="LullabyWorker.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="TrayIcon.cs" />
     <Page Include="MainWindow.xaml">

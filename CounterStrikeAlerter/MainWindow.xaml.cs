@@ -36,15 +36,17 @@ namespace CounterStrikeAlerter
 
         private void CustomInitialization()
         {
+            Hide();
             SetWindowLocationAndSize();
             //WindowState = WindowState.Minimized;
-            //ShowInTaskbar = false;
+            ShowInTaskbar = false;
             TrayIcon = new TrayIcon();
             Icon = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.cstrike.ToBitmap().GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
 
-            PutToSleep += MainWindow_PutToSleep;
-
+            HideTimer = new System.Timers.Timer(20000);
+            HideTimer.Enabled = false;
+            HideTimer.AutoReset = false;
 
             DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ContentControl.ContentProperty, typeof(Label));
             if (dpd != null)
@@ -54,15 +56,16 @@ namespace CounterStrikeAlerter
                     if (Visibility == Visibility.Hidden)
                         Show();
                     Dispatcher.Invoke(delegate () { }, DispatcherPriority.Render);
-                    Topmost = true;
-                    var timer = new System.Timers.Timer(15000);
-                    timer.Enabled = true;
-                    timer.Elapsed += Timer_Elapsed;
+                    Topmost = true;                    
+                    HideTimer.Enabled = true;
                 });
             }
 
+            HideTimer.Elapsed += Timer_Elapsed;
             TrayIcon.ExitHandler += TrayIcon_ExitHandler;
         }
+
+        System.Timers.Timer HideTimer;
 
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
@@ -72,13 +75,6 @@ namespace CounterStrikeAlerter
             }));
 
         }
-
-        private void MainWindow_PutToSleep(object sender, EventArgs e)
-        {
-            Hide();
-        }
-
-        private event EventHandler PutToSleep;
 
         private void TrayIcon_ExitHandler(object sender, EventArgs e)
         {
