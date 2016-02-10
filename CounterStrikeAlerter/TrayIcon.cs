@@ -21,10 +21,11 @@ namespace CounterStrikeAlerter
 
         private void NotifyIcon_DoubleClick(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            if (DoubleClick != null)
+                DoubleClick(this, new EventArgs());
         }
 
-        //public event E
+        public event EventHandler DoubleClick;
 
         public void Dispose()
         {

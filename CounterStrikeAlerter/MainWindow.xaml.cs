@@ -24,9 +24,6 @@ namespace CounterStrikeAlerter
     /// </summary>
     public partial class MainWindow : Window
     {
-        string ServerAddress;
-        int ServerPort;
-
         public MainWindow()
         {            
             DataContext = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort);
@@ -55,16 +52,27 @@ namespace CounterStrikeAlerter
             {
                 dpd.AddValueChanged(notificationLabel, delegate
                 {
-                    if (Visibility == Visibility.Hidden)
-                        Show();
-                    Dispatcher.Invoke(delegate () { }, DispatcherPriority.Render);
-                    Topmost = true;                    
-                    HideTimer.Enabled = true;
+                    ShowFormForAPeriodOfTime();
                 });
             }
 
             HideTimer.Elapsed += Timer_Elapsed;
             TrayIcon.ExitHandler += TrayIcon_ExitHandler;
+            TrayIcon.DoubleClick += TrayIcon_DoubleClick;
+        }
+
+        private void ShowFormForAPeriodOfTime()
+        {
+            if (Visibility == Visibility.Hidden)
+                Show();
+            Dispatcher.Invoke(delegate () { }, DispatcherPriority.Render);
+            Topmost = true;
+            HideTimer.Enabled = true;
+        }
+
+        private void TrayIcon_DoubleClick(object sender, EventArgs e)
+        {
+            ShowFormForAPeriodOfTime();
         }
 
         System.Timers.Timer HideTimer;
@@ -75,11 +83,12 @@ namespace CounterStrikeAlerter
             {
                 Hide();
             }));
-
         }
 
         private void TrayIcon_ExitHandler(object sender, EventArgs e)
         {
+            TrayIcon.Dispose();
+            TrayIcon = null;    // Have purpose of detecting a wish to exit application.
             Close();
         }
 
@@ -100,7 +109,8 @@ namespace CounterStrikeAlerter
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            TrayIcon.Dispose();
+            Hide();
+            e.Cancel = TrayIcon != null;
         }
 
     }
