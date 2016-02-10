@@ -24,10 +24,12 @@ namespace CounterStrikeAlerter
     /// </summary>
     public partial class MainWindow : Window
     {
+        string ServerAddress;
+        int ServerPort;
+
         public MainWindow()
-        {
-            //DataContext = new ServerMonitor("193.104.68.49", 27040);
-            DataContext = new ServerMonitor(Properties.Settings.Default.ServerAddress, Properties.Settings.Default.ServerPort);
+        {            
+            DataContext = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort);
             InitializeComponent();
             CustomInitialization();
 
@@ -44,7 +46,7 @@ namespace CounterStrikeAlerter
             Icon = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.cstrike.ToBitmap().GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
 
-            HideTimer = new System.Timers.Timer(20000);
+            HideTimer = new System.Timers.Timer(Properties.Settings.Default.BaloonHideInterval);
             HideTimer.Enabled = false;
             HideTimer.AutoReset = false;
 
