@@ -10,169 +10,220 @@ namespace CSA.ViewModel
 {
     public class Server
     {
-        private CSA.Model.Server _ServerModel;
+        /**
+        https://developer.valvesoftware.com/wiki/Server_queries
+        */
+
+        const string A2S_INFO = "TSource Engine Query\x00"; // Basic information about the server. 
+        const string A2S_PLAYER = "U\xFF\xFF\xFF\xFF";
+
+
+        private CSA.Model.BaseServer _ServerModel;
         private Socket SocketUDP;
 
         public Server(string address, int port)
         {
-            _ServerModel = new CSA.Model.Server(address, port);
+            ConstructiorInitialization(address, port);
+        }
+
+        public Server(string addressAndPort)
+        {
+            string address;
+            int port;
+            ParseServerAndPort(addressAndPort.Trim(), out address, out port);
+            ConstructiorInitialization(address, port);
+        }
+
+        private string Address;
+        private int Port;
+
+        private void ConstructiorInitialization(string address, int port)
+        {
+            Address = address;
+            Port = port;
             SocketUDP = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             SocketUDP.Blocking = false;
         }
 
+        private void ParseServerAndPort(string addressAndPort, out string address, out int port)
+        {
+            int delimiterPosition = addressAndPort.IndexOf(':');
+            address = addressAndPort.Substring(0, delimiterPosition);
+            int.TryParse(addressAndPort.Substring(delimiterPosition + 1), out port);
+        }
+
         public void QueryServerHeader()
         {
-            string serverQueryStr = "\xFF\xFF\xFF\xFFTSource Engine Query\x00";
-            string output = AskServer(serverQueryStr);
-            ParseServerInfo(output);
+            byte[] basicInfo;
+            AskServer(Request.ServerInfo, out basicInfo);
+            Response response = new Response(basicInfo);
+            ParseBasicInfo(response);
         }
 
-        public Model.Server ServerModel { get { return _ServerModel; } }
-
-        private void ParseServerInfo(string rawServerInfo)
+        public Model.BaseServer ServerModel
         {
-            if (!string.IsNullOrEmpty(rawServerInfo))
+            get
             {
-                // Remove unnecessary header data
-                rawServerInfo = rawServerInfo.Remove(0, 6);
-
-                _ServerModel.Name = GetNextStringAndRemove(ref rawServerInfo);
-                _ServerModel.Map = GetNextStringAndRemove(ref rawServerInfo);
-                _ServerModel.GameDir = GetNextStringAndRemove(ref rawServerInfo);
-                _ServerModel.GameDescription = GetNextStringAndRemove(ref rawServerInfo);
-                _ServerModel.AppId = GetNextShortAndRemove(ref rawServerInfo);
-                _ServerModel.CurrentNumberOfPlayers = GetNextByteAndRemove(ref rawServerInfo);
-                _ServerModel.MaxPlayers = GetNextByteAndRemove(ref rawServerInfo);
-                _ServerModel.Bots = GetNextByteAndRemove(ref rawServerInfo);
-                _ServerModel.ServerType = (Model.ServerType)GetNextByteAndRemove(ref rawServerInfo);
-                _ServerModel.OperatingSystem = (Model.OperatingSystem)GetNextByteAndRemove(ref rawServerInfo);
-                _ServerModel.Password = GetNextByteAndRemove(ref rawServerInfo) > 0;
-                _ServerModel.Secure = GetNextByteAndRemove(ref rawServerInfo) > 0;
-                if (_ServerModel.AppId == 2400)
-                    for (int i = 0; i < 3; i++)
-                        GetNextByteAndRemove(ref rawServerInfo);
-                _ServerModel.Version = GetNextStringAndRemove(ref rawServerInfo);
-                /*var edf = GetNextByteAndRemove(ref rawServerInfo);
-                short gamePort;
-                if ((edf & 0x80) > 0)
-                    gamePort = GetNextShortAndRemove(ref rawServerInfo); */
+                if (_ServerModel != null)
+                    return _ServerModel;
+                else
+                    throw new Exception("Read server first.");
             }
         }
 
-        private string GetNextStringAndRemove(ref string raw)
+        private void ParseBasicInfo(Response response)
         {
-            string value = string.Empty;
-            var endPosition = raw.IndexOf('\x0');
-            if (endPosition > 0)
+            if (response != null)
             {
-                value = raw.Substring(0, endPosition);
-                raw = raw.Remove(0, endPosition + 1);
+
+                byte engineIndicator = response.GetNextByte();
+                if (engineIndicator == (byte)Model.Header.Source)
+                {
+                    _ServerModel = new Model.SourceServer(Address, Port);
+                    _ServerModel.Header = Model.Header.Source;
+                    ParseBasicInfoForSource(response);
+                }
+                else if (engineIndicator == (byte)Model.Header.GoldSource)
+                {
+                    _ServerModel = new Model.GoldSourceServer(Address, Port);
+                    ServerModel.Header = Model.Header.Source;
+                    ParseBasicInfoForGoldSource(response);
+                }
+                else
+                {
+                    throw new Exception("Unknown server header.");
+                }
             }
+        }
+
+        private void ParseBasicInfoForSource(Response response)
+        {
+            var serverModel = _ServerModel as Model.SourceServer;
+            if (serverModel != null)
+            {
+                serverModel.Protocol = response.GetNextByte();
+                serverModel.Name = response.GetNextString();
+                serverModel.Map = response.GetNextString();
+                serverModel.Folder = response.GetNextString();
+                serverModel.Game = response.GetNextString();
+                serverModel.Id = (Model.SteamApplicationId)response.GetNextShort();
+                serverModel.ActualPlayers = response.GetNextByte();
+                serverModel.MaxPlayers = response.GetNextByte();
+                serverModel.Bots = response.GetNextByte();
+                serverModel.ServerType = (Model.ServerType)response.GetNextByte();
+                serverModel.Environment = (Model.Environment)response.GetNextByte();
+                serverModel.Visibility = (Model.Visibility)response.GetNextByte();
+                serverModel.Vac = (Model.Vac)response.GetNextByte();
+                if (serverModel.Id == Model.SteamApplicationId.TheShip)
+                {
+                    // TODO: For The Ship game.
+                }
+                serverModel.Version = response.GetNextString();
+            }
+        }
+
+        private void ParseBasicInfoForGoldSource(Response response)
+        {
+            var serverModel = _ServerModel as Model.GoldSourceServer;
+            if (serverModel != null)
+            {
+                serverModel.InternalAddress = response.GetNextString();
+                serverModel.Name = response.GetNextString();
+                serverModel.Map = response.GetNextString();
+                serverModel.Folder = response.GetNextString();
+                serverModel.Game = response.GetNextString();
+                serverModel.ActualPlayers = response.GetNextByte();
+                serverModel.MaxPlayers = response.GetNextByte();
+                serverModel.Protocol = response.GetNextByte();
+                serverModel.ServerType = (Model.ServerType)response.GetNextByte();
+                serverModel.Environment = (Model.Environment)response.GetNextByte();
+                serverModel.Visibility = (Model.Visibility)response.GetNextByte();
+                serverModel.Mod = (Model.GoldSourceMod)response.GetNextByte();
+                serverModel.Vac = (Model.Vac)response.GetNextByte();
+                serverModel.Bots = response.GetNextByte();
+            }
+        }
+
+        private byte GetNextByte(ref byte[] data, ref int position)
+        {
+            return data[position++];
+        }
+
+        private char GetNextCharAndRemove(ref string raw)
+        {
+            char value = raw[0];
+            raw = raw.Remove(0, 1);
             return value;
         }
 
-        private short GetNextShortAndRemove(ref string raw)
+        private void ParsePlayersInfo(Response response)
         {
-            short value;
-            int size = sizeof(System.Int16);
-            byte[] b = Encoding.Default.GetBytes(raw.Substring(0, size));
-            value = BitConverter.ToInt16(b, 0);
-            raw = raw.Remove(0, size);
-            return value;
-        }
-
-        private int GetNextIntAndRemove(ref string raw)
-        {
-            int value;
-            int size = sizeof(System.Int32);
-            byte[] b = Encoding.Default.GetBytes(raw.Substring(0, size));
-            value = BitConverter.ToInt32(b, 0);
-            raw = raw.Remove(0, size);
-            return value;
-        }
-
-        private float GetNextFloatAndRemove(ref string raw)
-        {
-            float value;
-            int size = sizeof(System.Single);
-            byte[] b = Encoding.Default.GetBytes(raw.Substring(0, size));
-            value = BitConverter.ToSingle(b, 0);
-            raw = raw.Remove(0, size);
-            return value;
-        }
-
-        private byte GetNextByteAndRemove(ref string raw)
-        {
-            byte value;
-            int size = sizeof(System.Byte);
-            byte[] b = Encoding.Default.GetBytes(raw.Substring(0, size));
-            value = b[0];
-            raw = raw.Remove(0, size);
-            return value;
-        }
-
-        private void ParsePlayersInfo(string rawPlayers)
-        {
-            if (!string.IsNullOrEmpty(rawPlayers))
+            if (response != null)
             {
                 // Strip header
-                rawPlayers = rawPlayers.Remove(0, 5);
-
-                byte numberOfPlayers = GetNextByteAndRemove(ref rawPlayers);
-                for (byte i = 0; i < numberOfPlayers; i++)
+                byte header = response.GetNextByte();
+                if (header == 0x44)
                 {
-                    var player = new Model.Player();
-                    GetNextByteAndRemove(ref rawPlayers);
-                    player.Name = GetNextStringAndRemove(ref rawPlayers);
-                    player.Frags = GetNextIntAndRemove(ref rawPlayers);
-                    player.Time = TimeSpan.FromSeconds(GetNextFloatAndRemove(ref rawPlayers));
-                    _ServerModel.Players.Add(player);
+                    byte numberOfPlayers = response.GetNextByte();
+                    for (byte i = 0; i < numberOfPlayers; i++)
+                    {
+                        var player = new Model.Player();
+                        player.Index = response.GetNextByte();
+                        player.Name = response.GetNextString();
+                        player.Score = response.GetNextInt();
+                        player.Duration = TimeSpan.FromSeconds(response.GetNextFloat());
+                        _ServerModel.Players.Add(player);
+                    }
                 }
+                else
+                    throw new ArgumentException("Expect 0x44");
             }
         }
 
         public void QueryPlayers()
         {
+            if (_ServerModel == null)
+                QueryServerHeader();
+
             _ServerModel.Players.Clear();
 
             // Challenge server before fetching players list.
-            string challengeQueryStr = "\xFF\xFF\xFF\xFFU\xFF\xFF\xFF\xFF";
-            string output = AskServer(challengeQueryStr);
-            if (!string.IsNullOrEmpty(output))
-            {
-                string challenge = output.Remove(0, 5);
+            byte[] challenge;
+            AskServer(Request.PlayerInfoChallenge, out challenge);
+            Response response = new Response(challenge);
 
-                // Players
-                string playersQueryStr = "\xFF\xFF\xFF\xFFU" + challenge;
-                output = AskServer(playersQueryStr);
-                ParsePlayersInfo(output);
-            }
+            // Get Players
+            byte[] playerInfo;
+            AskServer(Request.GetPlayersRequest(response.GetChallenge()), out playerInfo);
+            response = new Response(playerInfo);
+            ParsePlayersInfo(response);
         }
 
-        private string AskServer(string query)
-        {
-            byte[] serverQueryByte = Encoding.Default.GetBytes(query);
-            var endPoint = new IPEndPoint(IPAddress.Parse(_ServerModel.Address), _ServerModel.Port);
-            var x = SocketUDP.SendTo(serverQueryByte, endPoint);
+        Request Request = new Request();
 
-            byte[] receive = new byte[10240];
+        private void AskServer(byte[] request, out byte[] response)
+        {
+            response = null;
+            var endPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
+            var x = SocketUDP.SendTo(request, endPoint);
+
+            byte[] wholeResponse = new byte[10240];
+            int count = 0;
             var endPoint2 = endPoint as EndPoint;
-            string output = string.Empty;
             System.Threading.Thread.Sleep(1000); // Give server one second to respond.
-            int count;
             try
             {
-                count = SocketUDP.ReceiveFrom(receive, ref endPoint2);
-                if (count > 0)
+                count = SocketUDP.ReceiveFrom(wholeResponse, ref endPoint2);
+                if (count > 0 && count <= wholeResponse.Length)
                 {
-                    output = Encoding.Default.GetString(receive).Remove(count);
+                    response = new byte[count];
+                    Array.Copy(wholeResponse, response, count);
                 }
             }
             catch (Exception ex)
             {
 
             }
-            return output;
         }
 
         public void QueryServer()

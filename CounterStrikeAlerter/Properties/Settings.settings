@@ -2,11 +2,11 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CounterStrikeAlerter.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="ServerAddress" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">193.104.68.49</Value>
+    <Setting Name="ServerAddressAndPort" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">93.119.24.12:27015</Value>
     </Setting>
-    <Setting Name="ServerPort" Type="System.Int32" Scope="Application">
-      <Value Profile="(Default)">27040</Value>
+    <Setting Name="BaloonHideInterval" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">20000</Value>
     </Setting>
   </Settings>
 </SettingsFile>

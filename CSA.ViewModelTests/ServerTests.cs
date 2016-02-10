@@ -11,26 +11,40 @@ namespace CSA.ViewModel.Tests
     [TestClass()]
     public class ServerTests
     {
+        string GlobalGamingNisAddress = "193.104.68.49:27040";
+        string StyleIndungiAddress = "93.119.24.12:27015";
+        /// <summary>
+        /// Source server test
+        /// </summary>
         [TestMethod()]
-        public void QueryServerTest()
+        public void QueryServerHeaderTest_Source()
         {
-            Server server = new Server("192.168.0.147", 27015);
-            //Server server = new Server("192.168.0.255", 0);
+            Server server = new Server(GlobalGamingNisAddress);
             server.QueryServerHeader();
-            Assert.AreEqual("Brezna Arena".ToLower(), server.ServerModel.Name.ToLower());
+            Assert.AreEqual("Global Gaming Nis", server.ServerModel.Name);
         }
 
         [TestMethod()]
-        public void QueryPlayerTest()
+        public void QueryPlayerTest_Source()
         {
-            Server server = new Server("193.104.68.49", 27040);
-            //Server server = new Server("192.168.0.147", 27015);
+            Server server = new Server(GlobalGamingNisAddress);
             server.QueryPlayers();
-            foreach(var player in server.ServerModel.Players)
+            foreach (var player in server.ServerModel.Players)
             {
                 System.Diagnostics.Trace.WriteLine(player.ToString());
             }
             Assert.IsTrue(server.ServerModel.Players.Count > 0);
+        }
+
+        /// <summary>
+        /// GoldSource server test
+        /// </summary>
+        [TestMethod()]
+        public void QueryServerHeaderTest_GoldSource()
+        {
+            Server server = new Server(StyleIndungiAddress);
+            server.QueryServerHeader();
+            Assert.AreEqual("STYLE.INDUNGI.RO # FATAL ERROR".ToLower(), server.ServerModel.Name.ToLower());
         }
     }
 }

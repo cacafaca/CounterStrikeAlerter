@@ -25,19 +25,19 @@ namespace CounterStrikeAlerter.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("193.104.68.49")]
-        public string ServerAddress {
+        [global::System.Configuration.DefaultSettingValueAttribute("93.119.24.12:27015")]
+        public string ServerAddressAndPort {
             get {
-                return ((string)(this["ServerAddress"]));
+                return ((string)(this["ServerAddressAndPort"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("27040")]
-        public int ServerPort {
+        [global::System.Configuration.DefaultSettingValueAttribute("20000")]
+        public int BaloonHideInterval {
             get {
-                return ((int)(this["ServerPort"]));
+                return ((int)(this["BaloonHideInterval"]));
             }
         }
     }

@@ -21,6 +21,11 @@ namespace CSA.ViewModel
         {
         }
 
+        public ServerMonitor(string addressAndPort)
+            : this(new Server(addressAndPort))
+        {
+        }
+
         BackgroundWorker MonitorWorker;
         Server Server;
         TimeSpan MonitorSleepInterval;
@@ -59,7 +64,7 @@ namespace CSA.ViewModel
             Server.QueryServer();
             StringBuilder notification = new StringBuilder();
             notification.AppendLine(Server.ServerModel.ToString());
-            foreach (var player in Server.ServerModel.Players.OrderByDescending(player => player.Frags))
+            foreach (var player in Server.ServerModel.Players.OrderByDescending(player => player.Score))
                 notification.AppendLine(player.ToString());
             return notification.ToString();
         }
@@ -76,7 +81,7 @@ namespace CSA.ViewModel
             {
                 IsPlayersChanged = true;
                 notification.AppendLine(Server.ServerModel.ToString());
-                foreach (var player in Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Frags))
+                foreach (var player in Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Score))
                 {
                     notification.AppendLine("New player> " + player.ToString());
                 }
