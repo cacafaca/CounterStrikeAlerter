@@ -43,12 +43,12 @@ namespace CSA.ViewModel
         {
             while (true)
             {
-                //NotifyText = GetServerInfoNotification();
-
-                // Player change.
                 string newNotification = GetPlayerChanges();
                 if (IsPlayersChanged)
+                {
+                    IsPlayersChanged = false; 
                     NotifyText = newNotification;
+                }
 
                 System.Threading.Thread.Sleep(MonitorSleepInterval);
                 if (MonitorWorker.CancellationPending)
@@ -74,29 +74,33 @@ namespace CSA.ViewModel
             Server.QueryServer();
             StringBuilder notification = new StringBuilder();
 
-            IEnumerable<string> newPlayerDifferences = Server.ServerModel.Players.Select(player => player.Name).Except(OldPlayerNamesList);
-
-            // Look for a new players.
-            if (newPlayerDifferences.Count() > 0)
+            if (Server.ServerModel.Players.Count == 0 && OldPlayerNamesList.Count == 0)
             {
-                IsPlayersChanged = true;
                 notification.AppendLine(Server.ServerModel.ToString());
-                foreach (var player in Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Score))
-                {
-                    notification.AppendLine("New player> " + player.ToString());
-                }
-                OldPlayerNamesList.Clear();
-                foreach (var player in Server.ServerModel.Players)
-                    OldPlayerNamesList.Add(player.Name);
             }
             else
-                IsPlayersChanged = false;
-
+            {
+                // Look for a new players.
+                IsPlayersChanged = PlayerDifferences.Count() > 0;
+                if (IsPlayersChanged)
+                {
+                    
+                    notification.AppendLine(Server.ServerModel.ToString());
+                    foreach (var player in Server.ServerModel.Players.Where(player => PlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Score))
+                    {
+                        notification.AppendLine("New player> " + player.ToString());
+                    }
+                    OldPlayerNamesList.Clear();
+                    foreach (var player in Server.ServerModel.Players)
+                        OldPlayerNamesList.Add(player.Name);
+                }
+            }
             return notification.ToString();
         }
 
         List<string> OldPlayerNamesList = new List<string>();
-        bool IsPlayersChanged = false;
+        bool IsPlayersChanged = true;
+        IEnumerable<string> PlayerDifferences;
 
         public void StartMonitoring()
         {
