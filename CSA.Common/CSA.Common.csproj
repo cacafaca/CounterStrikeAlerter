@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5D35B7E9-FE4C-40DD-8C5F-9964F60BE44B}</ProjectGuid>
+    <ProjectGuid>{DC5BA645-313C-4D49-9AC2-75B8AC5EB274}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CSA.ViewModel</RootNamespace>
-    <AssemblyName>CSA.ViewModel</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <RootNamespace>CSA.Common</RootNamespace>
+    <AssemblyName>CSA.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,21 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Request.cs" />
-    <Compile Include="Response.cs" />
-    <Compile Include="Server.cs" />
+    <Compile Include="Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerMonitor.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CSA.Common\CSA.Common.csproj">
-      <Project>{dc5ba645-313c-4d49-9ac2-75b8ac5eb274}</Project>
-      <Name>CSA.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CSA.Model\CSA.Model.csproj">
-      <Project>{5e853511-cae0-4623-9aa3-2524c93b9df5}</Project>
-      <Name>CSA.Model</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

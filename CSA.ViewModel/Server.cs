@@ -14,10 +14,6 @@ namespace CSA.ViewModel
         https://developer.valvesoftware.com/wiki/Server_queries
         */
 
-        const string A2S_INFO = "TSource Engine Query\x00"; // Basic information about the server. 
-        const string A2S_PLAYER = "U\xFF\xFF\xFF\xFF";
-
-
         private CSA.Model.BaseServer _ServerModel;
         private Socket SocketUDP;
 
@@ -36,6 +32,7 @@ namespace CSA.ViewModel
 
         private string Address;
         private int Port;
+        IPEndPoint EndPoint;
 
         private void ConstructiorInitialization(string address, int port)
         {
@@ -43,6 +40,7 @@ namespace CSA.ViewModel
             Port = port;
             SocketUDP = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             SocketUDP.Blocking = false;
+            EndPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
         }
 
         private void ParseServerAndPort(string addressAndPort, out string address, out int port)
@@ -89,7 +87,7 @@ namespace CSA.ViewModel
                 else if (engineIndicator == (byte)Model.Header.GoldSource)
                 {
                     _ServerModel = new Model.GoldSourceServer(Address, Port);
-                    ServerModel.Header = Model.Header.Source;
+                    ServerModel.Header = Model.Header.GoldSource;
                     ParseBasicInfoForGoldSource(response);
                 }
                 else
@@ -142,6 +140,17 @@ namespace CSA.ViewModel
                 serverModel.Environment = (Model.Environment)response.GetNextByte();
                 serverModel.Visibility = (Model.Visibility)response.GetNextByte();
                 serverModel.Mod = (Model.GoldSourceMod)response.GetNextByte();
+                if (serverModel.Mod == Model.GoldSourceMod.HalfLifeMod)
+                {
+                    serverModel.Link = response.GetNextString();
+                    serverModel.DownloadLink = response.GetNextString();
+                    if (response.GetNextByte() != 0x00)
+                        throw new ArgumentException("Expect NULL (0x00).");
+                    serverModel.Version = response.GetNextInt();
+                    serverModel.Size = response.GetNextInt();
+                    serverModel.Type = (Model.GoldSourceModType)response.GetNextByte();
+                    serverModel.Dll = (Model.GoldSourceModDll)response.GetNextByte();
+                }
                 serverModel.Vac = (Model.Vac)response.GetNextByte();
                 serverModel.Bots = response.GetNextByte();
             }
@@ -219,20 +228,26 @@ namespace CSA.ViewModel
             response = null;
             if (request != null)
             {
-                var endPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
-                var x = SocketUDP.SendTo(request, endPoint);
+                var x = SocketUDP.SendTo(request, EndPoint);
 
-                byte[] wholeResponse = new byte[10240];
                 int count = 0;
-                var endPoint2 = endPoint as EndPoint;
-                System.Threading.Thread.Sleep(1000); // Give server one second to respond.
+                var receiveEndPoint = EndPoint as EndPoint;
                 try
                 {
-                    count = SocketUDP.ReceiveFrom(wholeResponse, ref endPoint2);
-                    if (count > 0 && count <= wholeResponse.Length)
+                    int retry = 0;
+                    while (SocketUDP.Available == 0 && retry < 3)
                     {
-                        response = new byte[count];
-                        Array.Copy(wholeResponse, response, count);
+                        System.Threading.Thread.Sleep(100); // Wait for an answer.
+                        retry++;
+                    }
+                    if (SocketUDP.Available > 0)
+                    {
+                        response = new byte[SocketUDP.Available];
+                        count = SocketUDP.ReceiveFrom(response, ref receiveEndPoint);
+                        if (SocketUDP.Available > 0)
+                        {
+                            throw new Exception("More to read.");
+                        }
                     }
                 }
                 catch (Exception ex)

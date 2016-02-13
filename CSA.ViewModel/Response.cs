@@ -43,11 +43,16 @@ namespace CSA.ViewModel
             if (Value != null && Value.Length > Position)
             {
                 int endPos = Array.IndexOf(Value, (byte)0x0, Position);
-                int length = endPos - Position;
-                byte[] result = new byte[length];
-                Array.Copy(Value, Position, result, 0, length);
-                Position = endPos + 1;
-                return Encoding.Default.GetString(result);
+                if (endPos != -1)
+                {
+                    int length = endPos - Position;
+                    byte[] result = new byte[length];
+                    Array.Copy(Value, Position, result, 0, length);
+                    Position = endPos + 1;
+                    return Encoding.Default.GetString(result);
+                }
+                else
+                    return string.Empty;
             }
             throw new Exception("Array overflow.");
         }
@@ -96,6 +101,14 @@ namespace CSA.ViewModel
             }
             else
                 return null;
+        }
+
+        public override string ToString()
+        {
+            if (Value != null)
+                return CSA.Common.Util.ByteArrayToString(Value);
+            else
+                return string.Empty;
         }
     }
 }

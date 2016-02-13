@@ -14,7 +14,7 @@ namespace CSA.ViewModel
 
         const int SimpleResponseFormat = -1; // Precedes every server query.
         const string A2S_INFO = "TSource Engine Query\x00"; // Basic information about the server. 
-        const string A2S_PLAYER = "U\xFF\xFF\xFF\xFF";
+        readonly byte[] A2S_PLAYER = { 0x55, 0xFF, 0xFF, 0xFF, 0xFF };
 
 
         public byte[] ServerInfo
@@ -34,7 +34,7 @@ namespace CSA.ViewModel
 
         private byte[] GetPlayerInfoChellengeRequest()
         {
-            return JoinArrays(BitConverter.GetBytes(SimpleResponseFormat), Encoding.Default.GetBytes(A2S_PLAYER));
+            return JoinArrays(BitConverter.GetBytes(SimpleResponseFormat), A2S_PLAYER);
         }
 
         private byte[] JoinArrays(byte[] array1, byte[] array2)
@@ -49,7 +49,7 @@ namespace CSA.ViewModel
         {
             if (challenge != null)
             {
-                return JoinArrays(JoinArrays(BitConverter.GetBytes(SimpleResponseFormat), new byte[1] { Encoding.Default.GetBytes(A2S_PLAYER)[0] }),
+                return JoinArrays(JoinArrays(BitConverter.GetBytes(SimpleResponseFormat), new byte[1] { A2S_PLAYER[0] }),
                     challenge);
             }
             else
