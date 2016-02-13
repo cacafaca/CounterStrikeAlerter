@@ -168,13 +168,15 @@ namespace CSA.ViewModel
             return value;
         }
 
+        const byte ResponseHeader = 0x44;
+
         private void ParsePlayersInfo(Response response)
         {
             if (response != null)
             {
                 // Strip header
                 byte header = response.GetNextByte();
-                if (header == 0x44)
+                if (header == ResponseHeader)
                 {
                     byte numberOfPlayers = response.GetNextByte();
                     for (byte i = 0; i < numberOfPlayers; i++)
