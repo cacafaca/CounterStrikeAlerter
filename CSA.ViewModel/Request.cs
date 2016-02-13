@@ -47,8 +47,13 @@ namespace CSA.ViewModel
 
         public byte[] GetPlayersRequest(byte[] challenge)
         {
-            return JoinArrays( JoinArrays(BitConverter.GetBytes(SimpleResponseFormat), new byte[1] { Encoding.Default.GetBytes(A2S_PLAYER)[0] } ),
-                challenge);
+            if (challenge != null)
+            {
+                return JoinArrays(JoinArrays(BitConverter.GetBytes(SimpleResponseFormat), new byte[1] { Encoding.Default.GetBytes(A2S_PLAYER)[0] }),
+                    challenge);
+            }
+            else
+                return null;
         }
     }
 }

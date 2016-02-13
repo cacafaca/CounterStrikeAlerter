@@ -25,12 +25,16 @@ namespace CSA.ViewModel
 
         public byte GetNextByte()
         {
-            SkipHeader();
-            if (Value != null && Value.Length > Position)
+            if (Value != null)
             {
-                return Value[Position++];
+                if (Value.Length > Position)
+                {
+                    SkipHeader();
+                    return Value[Position++];
+                }
+                throw new Exception("Array overflow.");
             }
-            throw new Exception("Array overflow.");
+            throw new ArgumentNullException(nameof(Value));
         }
 
         public string GetNextString()
@@ -83,10 +87,15 @@ namespace CSA.ViewModel
 
         public byte[] GetChallenge()
         {
-            const int challegeSize = 4;
-            byte[] result = new byte[challegeSize];
-            Array.Copy(Value, 5, result, 0, challegeSize);
-            return result;
+            if (Value != null)
+            {
+                const int challegeSize = 4;
+                byte[] result = new byte[challegeSize];
+                Array.Copy(Value, 5, result, 0, challegeSize);
+                return result;
+            }
+            else
+                return null;
         }
     }
 }

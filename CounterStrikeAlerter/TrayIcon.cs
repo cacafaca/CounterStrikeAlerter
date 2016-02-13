@@ -16,16 +16,16 @@ namespace CounterStrikeAlerter
             NotifyIcon.Icon = Properties.Resources.cstrike;
             NotifyIcon.Visible = true;
             AddContextmenu();
-            NotifyIcon.DoubleClick += NotifyIcon_DoubleClick;
+            NotifyIcon.Click += NotifyIcon_Click;
         }
 
-        private void NotifyIcon_DoubleClick(object sender, EventArgs e)
+        private void NotifyIcon_Click(object sender, EventArgs e)
         {
-            if (DoubleClick != null)
-                DoubleClick(this, new EventArgs());
+            if (Click != null)
+                Click(this, new EventArgs());
         }
 
-        public event EventHandler DoubleClick;
+        public event EventHandler Click;
 
         public void Dispose()
         {

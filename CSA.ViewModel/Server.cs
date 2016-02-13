@@ -204,25 +204,28 @@ namespace CSA.ViewModel
         private void AskServer(byte[] request, out byte[] response)
         {
             response = null;
-            var endPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
-            var x = SocketUDP.SendTo(request, endPoint);
+            if (request != null)
+            {                
+                var endPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
+                var x = SocketUDP.SendTo(request, endPoint);
 
-            byte[] wholeResponse = new byte[10240];
-            int count = 0;
-            var endPoint2 = endPoint as EndPoint;
-            System.Threading.Thread.Sleep(1000); // Give server one second to respond.
-            try
-            {
-                count = SocketUDP.ReceiveFrom(wholeResponse, ref endPoint2);
-                if (count > 0 && count <= wholeResponse.Length)
+                byte[] wholeResponse = new byte[10240];
+                int count = 0;
+                var endPoint2 = endPoint as EndPoint;
+                System.Threading.Thread.Sleep(1000); // Give server one second to respond.
+                try
                 {
-                    response = new byte[count];
-                    Array.Copy(wholeResponse, response, count);
+                    count = SocketUDP.ReceiveFrom(wholeResponse, ref endPoint2);
+                    if (count > 0 && count <= wholeResponse.Length)
+                    {
+                        response = new byte[count];
+                        Array.Copy(wholeResponse, response, count);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
+                catch (Exception ex)
+                {
 
+                }
             }
         }
 

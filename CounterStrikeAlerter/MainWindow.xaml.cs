@@ -58,7 +58,7 @@ namespace CounterStrikeAlerter
 
             HideTimer.Elapsed += Timer_Elapsed;
             TrayIcon.ExitHandler += TrayIcon_ExitHandler;
-            TrayIcon.DoubleClick += TrayIcon_DoubleClick;
+            TrayIcon.Click += TrayIcon_Click;
         }
 
         private void ShowFormForAPeriodOfTime()
@@ -70,7 +70,7 @@ namespace CounterStrikeAlerter
             HideTimer.Enabled = true;
         }
 
-        private void TrayIcon_DoubleClick(object sender, EventArgs e)
+        private void TrayIcon_Click(object sender, EventArgs e)
         {
             ShowFormForAPeriodOfTime();
         }
