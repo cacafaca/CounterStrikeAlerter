@@ -52,12 +52,15 @@ namespace CSA.ViewModel
             int.TryParse(addressAndPort.Substring(delimiterPosition + 1), out port);
         }
 
-        public void QueryServerHeader()
+        public bool QueryServerHeader()
         {
-            byte[] basicInfo;
+            byte[] basicInfo = null;
             AskServer(Request.ServerInfo, out basicInfo);
+            if (basicInfo == null)
+                return false;
             Response response = new Response(basicInfo);
             ParseBasicInfo(response);
+            return true;
         }
 
         public Model.BaseServer ServerModel
@@ -180,23 +183,33 @@ namespace CSA.ViewModel
             }
         }
 
-        public void QueryPlayers()
+        public bool QueryPlayers()
         {
-            if (_ServerModel == null)
-                QueryServerHeader();
+            bool headerWasRead = _ServerModel != null;
+            if (!headerWasRead)
+                headerWasRead = QueryServerHeader();
+            if (headerWasRead)
+            {
+                _ServerModel.Players.Clear();
 
-            _ServerModel.Players.Clear();
+                // Challenge server before fetching players list.
+                byte[] challenge = null;
+                AskServer(Request.PlayerInfoChallenge, out challenge);
+                if (challenge == null)
+                    return false;
+                Response response = new Response(challenge);
 
-            // Challenge server before fetching players list.
-            byte[] challenge;
-            AskServer(Request.PlayerInfoChallenge, out challenge);
-            Response response = new Response(challenge);
-
-            // Get Players
-            byte[] playerInfo;
-            AskServer(Request.GetPlayersRequest(response.GetChallenge()), out playerInfo);
-            response = new Response(playerInfo);
-            ParsePlayersInfo(response);
+                // Get Players
+                byte[] playerInfo = null;
+                AskServer(Request.GetPlayersRequest(response.GetChallenge()), out playerInfo);
+                if (playerInfo == null)
+                    return false;
+                response = new Response(playerInfo);
+                ParsePlayersInfo(response);
+                return true;
+            }
+            else
+                return false;
         }
 
         Request Request = new Request();
@@ -205,7 +218,7 @@ namespace CSA.ViewModel
         {
             response = null;
             if (request != null)
-            {                
+            {
                 var endPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
                 var x = SocketUDP.SendTo(request, endPoint);
 
@@ -229,10 +242,12 @@ namespace CSA.ViewModel
             }
         }
 
-        public void QueryServer()
+        public bool QueryServer()
         {
-            QueryServerHeader();
-            QueryPlayers();
+            if (QueryServerHeader() && ServerModel.ActualPlayers > 0)
+                return QueryPlayers();
+            else
+                return false;
         }
     }
 

@@ -215,6 +215,10 @@ namespace CSA.Model
             set { _Vac = value; }
         }
 
+        public string AddressAndPort()
+        {
+            return _Address + ":" + _Port.ToString();
+        }
 
         public override string ToString()
         {

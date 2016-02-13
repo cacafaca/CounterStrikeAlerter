@@ -26,7 +26,7 @@ namespace CounterStrikeAlerter
     {
         public MainWindow()
         {            
-            DataContext = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort);
+            DataContext = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort, Properties.Settings.Default.ServerReadInterval);
             InitializeComponent();
             CustomInitialization();
 

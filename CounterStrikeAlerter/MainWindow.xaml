@@ -10,7 +10,7 @@
 
     <Grid Background="#FFD4A400">
         <Grid Margin="10" Background="#FFFFF377">
-            <Label x:Name="notificationLabel" Content="{Binding Path=NotifyText, UpdateSourceTrigger=PropertyChanged}" Margin="10" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+            <Label x:Name="notificationLabel" Content="{Binding Path=NotifyText, UpdateSourceTrigger=PropertyChanged}" Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
         </Grid>
 
     </Grid>
