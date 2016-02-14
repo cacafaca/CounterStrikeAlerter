@@ -7,10 +7,22 @@
         mc:Ignorable="d"
         Title="Counter Strike Alerter" Height="150.736" Width="417.268" Opacity="0.7" WindowStyle="ToolWindow"
         Closing="Window_Closing">
-
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
     <Grid Background="#FFD4A400">
-        <Grid Margin="10" Background="#FFFFF377">
-            <Label x:Name="notificationLabel" Content="{Binding Path=NotifyText, UpdateSourceTrigger=PropertyChanged}" Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+        <Grid Margin="5,7,5,0" Height="42" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Label x:Name="serverName" Content="{Binding ServerMonitor.Server.Name}" HorizontalAlignment="Left" Width="179" Background="#FF17FD60"/>
+            <Label x:Name="serverMap" Content="{Binding ServerMonitor.Server.Map}" HorizontalAlignment="Left" Width="142" Background="#FF17FDE8" Margin="184,0,0,0"/>
+            <Label x:Name="serverPlayers" Content="{Binding ServerMonitor.Server.Players}" Background="#FF17FDE8" Margin="331,0,10,0"/>
+        </Grid>
+
+        <Grid Margin="16,32,-6,27" Background="#FFFFF377">
+            <Label x:Name="notificationLabel" Content="{Binding ServerMonitor.NotifyText, UpdateSourceTrigger=PropertyChanged}" Margin="10,0,10,10" ScrollViewer.HorizontalScrollBarVisibility="Auto" Height="47" VerticalAlignment="Bottom" />
         </Grid>
 
     </Grid>

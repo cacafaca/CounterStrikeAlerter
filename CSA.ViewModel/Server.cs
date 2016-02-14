@@ -8,13 +8,25 @@ using System.Threading.Tasks;
 
 namespace CSA.ViewModel
 {
-    public class Server
+    public class Server : BaseViewModel
     {
         /**
         https://developer.valvesoftware.com/wiki/Server_queries
         */
 
         private CSA.Model.BaseServer _ServerModel;
+
+        public Model.BaseServer ServerModel
+        {
+            get
+            {
+                if (_ServerModel != null)
+                    return _ServerModel;
+                else
+                    throw new Exception("Read server first.");
+            }
+        }
+
         private Socket SocketUDP;
 
         public Server(string address, int port)
@@ -58,18 +70,12 @@ namespace CSA.ViewModel
                 return false;
             Response response = new Response(basicInfo);
             ParseBasicInfo(response);
-            return true;
-        }
 
-        public Model.BaseServer ServerModel
-        {
-            get
-            {
-                if (_ServerModel != null)
-                    return _ServerModel;
-                else
-                    throw new Exception("Read server first.");
-            }
+            Name = _ServerModel.Name;
+            Map = _ServerModel.Map;
+            Players = string.Format("{0}/{1}", _ServerModel.ActualPlayers, _ServerModel.MaxPlayers);
+
+            return true;
         }
 
         private void ParseBasicInfo(Response response)
@@ -87,7 +93,7 @@ namespace CSA.ViewModel
                 else if (engineIndicator == (byte)Model.Header.GoldSource)
                 {
                     _ServerModel = new Model.GoldSourceServer(Address, Port);
-                    ServerModel.Header = Model.Header.GoldSource;
+                    _ServerModel.Header = Model.Header.GoldSource;
                     ParseBasicInfoForGoldSource(response);
                 }
                 else
@@ -261,11 +267,47 @@ namespace CSA.ViewModel
 
         public bool QueryServer()
         {
-            if (QueryServerHeader() && ServerModel.ActualPlayers > 0)
+            if (QueryServerHeader() && _ServerModel.ActualPlayers > 0)
                 return QueryPlayers();
             else
                 return false;
         }
+
+        private string _Name;
+        public string Name
+        {
+            get { return _Name; }
+            set
+            {
+                _Name = value;
+                RaisePropertyChanged(nameof(Name));
+            }
+        }
+
+        private string _Map;
+
+        public string Map
+        {
+            get { return _Map; }
+            set
+            {
+                _Map = value;
+                RaisePropertyChanged(nameof(Map));
+            }
+        }
+
+        private string _Players;
+
+        public string Players
+        {
+            get { return _Players; }
+            set
+            {
+                _Players = value;
+                RaisePropertyChanged(nameof(Players));
+            }
+        }
+
     }
 
 }

@@ -25,8 +25,7 @@ namespace CounterStrikeAlerter
     public partial class MainWindow : Window
     {
         public MainWindow()
-        {            
-            DataContext = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort, Properties.Settings.Default.ServerReadInterval);
+        {
             InitializeComponent();
             CustomInitialization();
 
@@ -35,9 +34,10 @@ namespace CounterStrikeAlerter
 
         private void CustomInitialization()
         {
+            ((MainViewModel)DataContext).ServerMonitor = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort, Properties.Settings.Default.ServerReadInterval);
+
             Hide();
             SetWindowLocationAndSize();
-            //WindowState = WindowState.Minimized;
             ShowInTaskbar = false;
             TrayIcon = new TrayIcon();
             Icon = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.cstrike.ToBitmap().GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
@@ -104,7 +104,7 @@ namespace CounterStrikeAlerter
 
         private void StartMonitoring()
         {
-            ((ServerMonitor)DataContext).StartMonitoring();
+            ((MainViewModel)DataContext).ServerMonitor.StartMonitoring();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

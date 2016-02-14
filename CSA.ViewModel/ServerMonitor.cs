@@ -8,39 +8,36 @@ using System.Threading.Tasks;
 
 namespace CSA.ViewModel
 {
-    public class ServerMonitor : INotifyPropertyChanged
+    public class ServerMonitor : BaseViewModel, INotifyPropertyChanged
     {
-        public ServerMonitor(Server server)
+        public ServerMonitor(Server server, TimeSpan monitorSleepInterval)
         {
-            Server = server;
+            if (monitorSleepInterval != null && monitorSleepInterval.TotalSeconds == 0)
+                MonitorSleepInterval = monitorSleepInterval;
+            else
+                MonitorSleepInterval = DefaultMonitorSleepInterval;
+            _Server = server;
             InitializeMonitorWorker();
         }
 
-        public ServerMonitor(string address, int port)
-            : this(new Server(address, port))
-        {
-        }
-
-        public ServerMonitor(string addressAndPort)
-            : this(new Server(addressAndPort))
+        public ServerMonitor(Server server)
+            : this(server, new TimeSpan())
         {
         }
 
         public ServerMonitor(string addressAndPort, TimeSpan monitorSleepInterval)
-            : this(new Server(addressAndPort))
+            : this(new Server(addressAndPort), monitorSleepInterval)
         {
-            if (monitorSleepInterval != null)
-                MonitorSleepInterval = monitorSleepInterval;
-            else
-                MonitorSleepInterval = DefaultMonitorSleepInterval;
+        }
+
+        public ServerMonitor(string addressAndPort)
+            : this(addressAndPort, new TimeSpan())
+        {
         }
 
         BackgroundWorker MonitorWorker;
-        Server Server;
         TimeSpan DefaultMonitorSleepInterval;
         TimeSpan MonitorSleepInterval;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private void InitializeMonitorWorker()
         {
@@ -56,7 +53,7 @@ namespace CSA.ViewModel
                 string newNotification = GetPlayerChanges();
                 if (IsPlayersChanged)
                 {
-                    IsPlayersChanged = false; 
+                    IsPlayersChanged = false;
                     NotifyText = newNotification;
                 }
 
@@ -73,34 +70,37 @@ namespace CSA.ViewModel
         {
             StringBuilder notification = new StringBuilder();
 
-            if (Server.QueryServer())
+            if (_Server.QueryServer())
             {
-                if (Server.ServerModel.ActualPlayers > 0)
+                if (_Server.ServerModel.ActualPlayers > 0)
                 {
-                    IEnumerable<string> newPlayerDifferences = Server.ServerModel.Players.Select(player => player.Name).Except(OldPlayerNamesList);
+                    IEnumerable<string> newPlayerDifferences = _Server.ServerModel.Players.Select(player => player.Name).Except(OldPlayerNamesList);
 
                     // Look for a new players.
                     if (newPlayerDifferences.Count() > 0)
                     {
                         IsPlayersChanged = true;
-                        notification.AppendLine(Server.ServerModel.ToString());
-                        foreach (var player in Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Score))
+                        notification.AppendLine(_Server.ServerModel.ToString());
+                        foreach (var player in _Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Score))
                         {
                             notification.AppendLine("New player> " + player.ToString());
                         }
                         OldPlayerNamesList.Clear();
-                        foreach (var player in Server.ServerModel.Players)
+                        foreach (var player in _Server.ServerModel.Players)
                             OldPlayerNamesList.Add(player.Name);
                     }
                     else
                         IsPlayersChanged = false;
                 }
                 else
-                    notification.Append("No players.");
+                {
+                    notification.AppendLine(_Server.ServerModel.ToString());
+                    notification.AppendLine("No players.");
+                }
             }
             else
             {
-                notification.Append(string.Format("Can't read server info at " + Server.ServerModel.AddressAndPort()));
+                notification.Append(string.Format("Can't read server info at " + _Server.ServerModel.AddressAndPort()));
             }
 
             return notification.ToString();
@@ -126,10 +126,15 @@ namespace CSA.ViewModel
             }
         }
 
-        protected void RaisePropertyChanged(string propertyName)
+        Server _Server;
+        public Server Server
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            get { return _Server; }
+            set
+            {
+                _Server = value;
+                RaisePropertyChanged(nameof(Server));
+            }
         }
     }
 }
