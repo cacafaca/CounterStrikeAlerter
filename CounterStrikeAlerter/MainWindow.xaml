@@ -11,18 +11,19 @@
         <local:MainViewModel />
     </Window.DataContext>
     <Grid Background="#FFD4A400">
-        <Grid Margin="5,7,5,0" Height="42" VerticalAlignment="Top">
+        <Grid Margin="3">
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
+                <RowDefinition Height="20" ToolTip="Server info."/>
+                <RowDefinition ToolTip="Players info"/>
             </Grid.RowDefinitions>
-            <Label x:Name="serverName" Content="{Binding ServerMonitor.Server.Name}" HorizontalAlignment="Left" Width="179" Background="#FF17FD60"/>
-            <Label x:Name="serverMap" Content="{Binding ServerMonitor.Server.Map}" HorizontalAlignment="Left" Width="142" Background="#FF17FDE8" Margin="184,0,0,0"/>
-            <Label x:Name="serverPlayers" Content="{Binding ServerMonitor.Server.Players}" Background="#FF17FDE8" Margin="331,0,10,0"/>
-        </Grid>
-
-        <Grid Margin="16,32,-6,27" Background="#FFFFF377">
-            <Label x:Name="notificationLabel" Content="{Binding ServerMonitor.NotifyText, UpdateSourceTrigger=PropertyChanged}" Margin="10,0,10,10" ScrollViewer.HorizontalScrollBarVisibility="Auto" Height="47" VerticalAlignment="Bottom" />
+            <Label x:Name="serverName" Content="{Binding ServerMonitor.Server.Name}" HorizontalAlignment="Left" Width="179" Background="#FF17FD60" Padding="1"/>
+            <Label x:Name="serverMap" Content="{Binding ServerMonitor.Server.Map}" HorizontalAlignment="Left" Width="142" Background="#FF17FDE8" Margin="184,0,0,0" Padding="1"/>
+            <Label x:Name="serverPlayers" Content="{Binding ServerMonitor.Server.CurrentPlayers}" Background="#FF17FDE8" Margin="331,0,0,0" Padding="1"/>
+            <DataGrid x:Name="playersGrid" Margin="0,3,0,0" Grid.Row="1" IsReadOnly="True">
+                <DataGrid.Columns >
+                    <DataGridTextColumn ClipboardContentBinding="{x:Null}" Header="Name"/>
+                </DataGrid.Columns>
+            </DataGrid>
         </Grid>
 
     </Grid>

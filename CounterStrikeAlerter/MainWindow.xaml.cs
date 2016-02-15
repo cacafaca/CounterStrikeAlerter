@@ -50,7 +50,7 @@ namespace CounterStrikeAlerter
             DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ContentControl.ContentProperty, typeof(Label));
             if (dpd != null)
             {
-                dpd.AddValueChanged(notificationLabel, delegate
+                dpd.AddValueChanged(playersGrid, delegate
                 {
                     ShowFormForAPeriodOfTime();
                 });

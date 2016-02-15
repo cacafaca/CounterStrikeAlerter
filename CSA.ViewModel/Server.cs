@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -73,7 +74,7 @@ namespace CSA.ViewModel
 
             Name = _ServerModel.Name;
             Map = _ServerModel.Map;
-            Players = string.Format("{0}/{1}", _ServerModel.ActualPlayers, _ServerModel.MaxPlayers);
+            CurrentPlayers = string.Format("{0}/{1}", _ServerModel.ActualPlayers, _ServerModel.MaxPlayers);
 
             return true;
         }
@@ -296,9 +297,21 @@ namespace CSA.ViewModel
             }
         }
 
-        private string _Players;
+        private string _CurrentPlayers;
 
-        public string Players
+        public string CurrentPlayers
+        {
+            get { return _CurrentPlayers; }
+            set
+            {
+                _CurrentPlayers = value;
+                RaisePropertyChanged(nameof(CurrentPlayers));
+            }
+        }
+
+        private ObservableCollection<string> _Players;
+
+        public ObservableCollection<string> Players
         {
             get { return _Players; }
             set
