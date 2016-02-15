@@ -19,9 +19,11 @@
             <Label x:Name="serverName" Content="{Binding ServerMonitor.Server.Name}" HorizontalAlignment="Left" Width="179" Background="#FF17FD60" Padding="1"/>
             <Label x:Name="serverMap" Content="{Binding ServerMonitor.Server.Map}" HorizontalAlignment="Left" Width="142" Background="#FF17FDE8" Margin="184,0,0,0" Padding="1"/>
             <Label x:Name="serverPlayers" Content="{Binding ServerMonitor.Server.CurrentPlayers}" Background="#FF17FDE8" Margin="331,0,0,0" Padding="1"/>
-            <DataGrid x:Name="playersGrid" Margin="0,3,0,0" Grid.Row="1" IsReadOnly="True">
+            <DataGrid x:Name="playersGrid" Margin="0,3,0,0" Grid.Row="1" IsReadOnly="True" ItemsSource="{Binding ServerMonitor.Server.Players}" AutoGenerateColumns="False">
                 <DataGrid.Columns >
-                    <DataGridTextColumn ClipboardContentBinding="{x:Null}" Header="Name"/>
+                    <DataGridTextColumn ClipboardContentBinding="{x:Null}" Header="Name" Binding="{Binding Name}"/>
+                    <DataGridTextColumn ClipboardContentBinding="{x:Null}" Header="Score" Binding="{Binding Score}"/>
+                    <DataGridTextColumn ClipboardContentBinding="{x:Null}" Header="Duration" Binding="{Binding Duration}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

@@ -89,6 +89,7 @@ namespace CSA.ViewModel
                 {
                     _ServerModel = new Model.SourceServer(Address, Port);
                     _ServerModel.Header = Model.Header.Source;
+                    //_ServerModel.Players.CollectionChanged += ServerModelPlayers_CollectionChanged;
                     ParseBasicInfoForSource(response);
                 }
                 else if (engineIndicator == (byte)Model.Header.GoldSource)
@@ -102,6 +103,11 @@ namespace CSA.ViewModel
                     throw new Exception("Unknown server header.");
                 }
             }
+        }
+
+        private void ServerModelPlayers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(Players));
         }
 
         private void ParseBasicInfoForSource(Response response)
@@ -224,6 +230,7 @@ namespace CSA.ViewModel
                     return false;
                 response = new Response(playerInfo);
                 ParsePlayersInfo(response);
+                RaisePropertyChanged(nameof(Players));
                 return true;
             }
             else
@@ -309,15 +316,27 @@ namespace CSA.ViewModel
             }
         }
 
-        private ObservableCollection<string> _Players;
+        private ObservableCollection<Player> _Players;
 
-        public ObservableCollection<string> Players
+        public ObservableCollection<Player> Players
         {
-            get { return _Players; }
-            set
+            get
             {
-                _Players = value;
-                RaisePropertyChanged(nameof(Players));
+                var oc = new ObservableCollection<Player>();
+                if (_ServerModel != null && _ServerModel.Players != null)
+                {
+                    var pl = _ServerModel.Players.ToList();
+                    foreach (var player in pl)
+                        if (player != null)
+                            oc.Add(new Player()
+                            {
+                                Index = player.Index,
+                                Name = player.Name,
+                                Score = player.Score,
+                                Duration = player.Duration
+                            });
+                }
+                return oc;
             }
         }
 
