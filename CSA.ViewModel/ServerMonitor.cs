@@ -17,6 +17,7 @@ namespace CSA.ViewModel
             else
                 MonitorSleepInterval = DefaultMonitorSleepInterval;
             _Server = server;
+            _PlayersChange = new ObservableCollection<Player>();
             InitializeMonitorWorker();
         }
 

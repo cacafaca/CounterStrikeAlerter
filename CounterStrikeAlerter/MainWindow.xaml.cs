@@ -47,7 +47,7 @@ namespace CounterStrikeAlerter
             HideTimer.Enabled = false;
             HideTimer.AutoReset = false;
 
-            DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ContentControl.ContentProperty, typeof(Control));
+            DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ItemsControl));
             if (dpd != null)
             {
                 dpd.AddValueChanged(playersGrid, delegate
@@ -60,6 +60,8 @@ namespace CounterStrikeAlerter
             TrayIcon.ExitHandler += TrayIcon_ExitHandler;
             TrayIcon.Click += TrayIcon_Click;
         }
+
+       
 
         private void ShowFormForAPeriodOfTime()
         {
