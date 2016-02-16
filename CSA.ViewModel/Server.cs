@@ -105,11 +105,6 @@ namespace CSA.ViewModel
             }
         }
 
-        private void ServerModelPlayers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            RaisePropertyChanged(nameof(Players));
-        }
-
         private void ParseBasicInfoForSource(Response response)
         {
             var serverModel = _ServerModel as Model.SourceServer;
@@ -315,8 +310,6 @@ namespace CSA.ViewModel
                 RaisePropertyChanged(nameof(CurrentPlayers));
             }
         }
-
-        private ObservableCollection<Player> _Players;
 
         public ObservableCollection<Player> Players
         {

@@ -59,7 +59,8 @@ namespace CSA.ViewModel
 
         public override string ToString()
         {
-            return string.Format("Name:{0}; Frags:{1}; Time:{2}", _Name, _Score, _Duration.ToString(@"hh\:mm\:ss"));
+            //return string.Format("Name:{0}; Frags:{1}; Time:{2}", _Name, _Score, _Duration.ToString(@"hh\:mm\:ss"));
+            return string.Format("Name:{0}; Frags:{1}; Time:{2}", _Name, _Score, _Duration);
         }
     }
 }

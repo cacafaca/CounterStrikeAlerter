@@ -47,7 +47,7 @@ namespace CounterStrikeAlerter
             HideTimer.Enabled = false;
             HideTimer.AutoReset = false;
 
-            DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ContentControl.ContentProperty, typeof(Label));
+            DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ContentControl.ContentProperty, typeof(Control));
             if (dpd != null)
             {
                 dpd.AddValueChanged(playersGrid, delegate
