@@ -82,11 +82,12 @@ namespace CSA.ViewModel
                         // Look for a new players.
                         if (newPlayerDifferences.Count() > 0)
                         {
+                            byte index = 1;
                             foreach (var player in _Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Score))
                             {
                                 playersChanged.Add(new Player()
                                 {
-                                    Index = player.Index,
+                                    Index = index++,
                                     Name = player.Name,
                                     Score = player.Score,
                                     Duration = player.Duration
