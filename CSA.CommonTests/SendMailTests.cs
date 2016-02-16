@@ -15,8 +15,7 @@ namespace CSA.Common.Tests
         public void SendTest()
         {
             var credential = new System.Net.NetworkCredential("kanter.brezna@gmail.com", "ladan");
-            SendMail sender = new SendMail("smtp.gmail.com", 25, credential.UserName,
-                credential);
+            SendMail sender = new SendMail("smtp.gmail.com", 25, credential);
                 
             sender.Send("<nemanja.simovic@gmail.com>;<nemanja.simovic@brezna.info>", "Test " + DateTime.Now.ToLongTimeString(), DateTime.Now.ToLongDateString());
             Assert.IsTrue(true);

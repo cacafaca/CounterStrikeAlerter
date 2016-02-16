@@ -10,7 +10,7 @@ namespace CSA.Common
 {
     public class SendMail
     {
-        public SendMail(string smtpServer, int smtpPort, string from, ICredentialsByHost credentials)
+        public SendMail(string smtpServer, int smtpPort, ICredentialsByHost credentials)
         {
             Client = new SmtpClient();
             Client.Host = smtpServer;
@@ -20,7 +20,7 @@ namespace CSA.Common
             Client.EnableSsl = true;
             Client.Timeout = 10000;
             Client.Credentials = credentials;
-            From = from;
+            From = ((System.Net.NetworkCredential)credentials).UserName;
         }
         string From;
         SmtpClient Client;

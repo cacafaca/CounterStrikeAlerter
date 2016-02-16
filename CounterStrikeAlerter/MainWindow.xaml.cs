@@ -58,10 +58,15 @@ namespace CounterStrikeAlerter
 
             HideTimer.Elapsed += Timer_Elapsed;
             TrayIcon.ExitHandler += TrayIcon_ExitHandler;
+            TrayIcon.GmailUserPass += TrayIcon_GmailUserPass;
             TrayIcon.Click += TrayIcon_Click;
         }
 
-       
+        private void TrayIcon_GmailUserPass(object sender, EventArgs e)
+        {
+            GmailSettings gmailForm = new GmailSettings();
+            gmailForm.Show();
+        }
 
         private void ShowFormForAPeriodOfTime()
         {
