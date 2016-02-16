@@ -65,6 +65,8 @@ namespace CSA.ViewModel
 
         public bool QueryServerHeader()
         {
+            System.Diagnostics.Debug.WriteLine("Start quering server header.", "QueryServerHeader()");
+
             byte[] basicInfo = null;
             AskServer(Request.ServerInfo, out basicInfo);
             if (basicInfo == null)
@@ -75,6 +77,8 @@ namespace CSA.ViewModel
             Name = _ServerModel.Name;
             Map = _ServerModel.Map;
             CurrentPlayers = string.Format("{0}/{1}", _ServerModel.ActualPlayers, _ServerModel.MaxPlayers);
+
+            System.Diagnostics.Debug.WriteLine("Finished quering server header. Info: " + _ServerModel.ToString(), "QueryServerHeader()");
 
             return true;
         }
@@ -204,6 +208,8 @@ namespace CSA.ViewModel
 
         public bool QueryPlayers()
         {
+            System.Diagnostics.Debug.WriteLine("Start quering players.", "QueryPlayers()");
+
             bool headerWasRead = _ServerModel != null;
             if (!headerWasRead)
                 headerWasRead = QueryServerHeader();
@@ -215,21 +221,31 @@ namespace CSA.ViewModel
                 byte[] challenge = null;
                 AskServer(Request.PlayerInfoChallenge, out challenge);
                 if (challenge == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
                     return false;
+                }
                 Response response = new Response(challenge);
 
                 // Get Players
                 byte[] playerInfo = null;
                 AskServer(Request.GetPlayersRequest(response.GetChallenge()), out playerInfo);
                 if (playerInfo == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
                     return false;
+                }
                 response = new Response(playerInfo);
                 ParsePlayersInfo(response);
                 RaisePropertyChanged(nameof(Players));
+                System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
                 return true;
             }
             else
+            {
+                System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
                 return false;
+            }
         }
 
         Request Request = new Request();
@@ -280,7 +296,7 @@ namespace CSA.ViewModel
         public string Name
         {
             get { return _Name; }
-            set
+            private set
             {
                 _Name = value;
                 RaisePropertyChanged(nameof(Name));
@@ -292,7 +308,7 @@ namespace CSA.ViewModel
         public string Map
         {
             get { return _Map; }
-            set
+            private set
             {
                 _Map = value;
                 RaisePropertyChanged(nameof(Map));
@@ -304,7 +320,7 @@ namespace CSA.ViewModel
         public string CurrentPlayers
         {
             get { return _CurrentPlayers; }
-            set
+            private set
             {
                 _CurrentPlayers = value;
                 RaisePropertyChanged(nameof(CurrentPlayers));
