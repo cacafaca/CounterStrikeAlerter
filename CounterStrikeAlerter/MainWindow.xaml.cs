@@ -25,8 +25,7 @@ namespace CounterStrikeAlerter
     public partial class MainWindow : Window
     {
         public MainWindow()
-        {            
-            DataContext = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort);
+        {
             InitializeComponent();
             CustomInitialization();
 
@@ -35,9 +34,10 @@ namespace CounterStrikeAlerter
 
         private void CustomInitialization()
         {
+            ((MainViewModel)DataContext).ServerMonitor = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort, Properties.Settings.Default.ServerReadInterval);
+
             Hide();
             SetWindowLocationAndSize();
-            //WindowState = WindowState.Minimized;
             ShowInTaskbar = false;
             TrayIcon = new TrayIcon();
             Icon = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.cstrike.ToBitmap().GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
@@ -47,10 +47,10 @@ namespace CounterStrikeAlerter
             HideTimer.Enabled = false;
             HideTimer.AutoReset = false;
 
-            DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ContentControl.ContentProperty, typeof(Label));
+            DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ItemsControl));
             if (dpd != null)
             {
-                dpd.AddValueChanged(notificationLabel, delegate
+                dpd.AddValueChanged(playersGrid, delegate
                 {
                     ShowFormForAPeriodOfTime();
                 });
@@ -58,7 +58,14 @@ namespace CounterStrikeAlerter
 
             HideTimer.Elapsed += Timer_Elapsed;
             TrayIcon.ExitHandler += TrayIcon_ExitHandler;
+            TrayIcon.GmailUserPass += TrayIcon_GmailUserPass;
             TrayIcon.Click += TrayIcon_Click;
+        }
+
+        private void TrayIcon_GmailUserPass(object sender, EventArgs e)
+        {
+            GmailSettings gmailForm = new GmailSettings();
+            gmailForm.Show();
         }
 
         private void ShowFormForAPeriodOfTime()
@@ -79,7 +86,7 @@ namespace CounterStrikeAlerter
 
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            Dispatcher.Invoke((Action)(() =>
+            this.Dispatcher.Invoke((Action)(() =>
             {
                 Hide();
             }));
@@ -104,7 +111,7 @@ namespace CounterStrikeAlerter
 
         private void StartMonitoring()
         {
-            ((ServerMonitor)DataContext).StartMonitoring();
+            ((MainViewModel)DataContext).ServerMonitor.StartMonitoring();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

@@ -8,46 +8,49 @@ using System.Threading.Tasks;
 
 namespace CSA.ViewModel
 {
-    public class ServerMonitor : INotifyPropertyChanged
+    public class ServerMonitor : BaseViewModel, INotifyPropertyChanged
     {
-        public ServerMonitor(Server server)
+        public ServerMonitor(Server server, TimeSpan monitorSleepInterval)
         {
-            Server = server;
-            InitializeMonitorWorker();
+            DefaultMonitorSleepInterval = new TimeSpan(0, 0, 5);
+            if (monitorSleepInterval != null && monitorSleepInterval.TotalSeconds == 0)
+                MonitorSleepInterval = monitorSleepInterval;
+            else
+                MonitorSleepInterval = DefaultMonitorSleepInterval;
+            _Server = server;
+            _PlayersChange = new ObservableCollection<Player>();
+            MonitorWorker = new BackgroundWorker();
+            MonitorWorker.DoWork += MonitorWorker_DoWork;
         }
 
-        public ServerMonitor(string address, int port)
-            : this(new Server(address, port))
+        public ServerMonitor(Server server)
+            : this(server, new TimeSpan())
+        {
+        }
+
+        public ServerMonitor(string addressAndPort, TimeSpan monitorSleepInterval)
+            : this(new Server(addressAndPort), monitorSleepInterval)
         {
         }
 
         public ServerMonitor(string addressAndPort)
-            : this(new Server(addressAndPort))
+            : this(addressAndPort, new TimeSpan())
         {
         }
 
         BackgroundWorker MonitorWorker;
-        Server Server;
+        TimeSpan DefaultMonitorSleepInterval;
         TimeSpan MonitorSleepInterval;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void InitializeMonitorWorker()
-        {
-            MonitorSleepInterval = new TimeSpan(0, 0, 5);
-            MonitorWorker = new BackgroundWorker();
-            MonitorWorker.DoWork += MonitorWorker_DoWork;
-        }
 
         private void MonitorWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             while (true)
             {
-                string newNotification = GetPlayerChanges();
-                if (IsPlayersChanged)
+                _PlayersChange = GetPlayersChange();
+                if (_PlayersChange != null && _PlayersChange.Count > 0)
                 {
-                    IsPlayersChanged = false; 
-                    NotifyText = newNotification;
+                    RaisePropertyChanged(nameof(PlayersChange));
+                    SendMailThatPlayersAreChanged();
                 }
 
                 System.Threading.Thread.Sleep(MonitorSleepInterval);
@@ -59,70 +62,97 @@ namespace CSA.ViewModel
             }
         }
 
-        private string GetServerInfoNotification()
+        private void SendMailThatPlayersAreChanged()
         {
-            Server.QueryServer();
-            StringBuilder notification = new StringBuilder();
-            notification.AppendLine(Server.ServerModel.ToString());
-            foreach (var player in Server.ServerModel.Players.OrderByDescending(player => player.Score))
-                notification.AppendLine(player.ToString());
-            return notification.ToString();
-        }
-
-        private string GetPlayerChanges()
-        {
-            Server.QueryServer();
-            StringBuilder notification = new StringBuilder();
-
-            if (Server.ServerModel.Players.Count == 0 && OldPlayerNamesList.Count == 0)
+            if (_PlayersChange.Count > 0)
             {
-                notification.AppendLine(Server.ServerModel.ToString());
-            }
-            else
-            {
-                // Look for a new players.
-                IsPlayersChanged = PlayerDifferences.Count() > 0;
-                if (IsPlayersChanged)
+                string user, password;
+                ReadUserAndPasswordFromRegistry(out user, out password);
+                if (!string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password))
                 {
-                    
-                    notification.AppendLine(Server.ServerModel.ToString());
-                    foreach (var player in Server.ServerModel.Players.Where(player => PlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Score))
-                    {
-                        notification.AppendLine("New player> " + player.ToString());
-                    }
-                    OldPlayerNamesList.Clear();
-                    foreach (var player in Server.ServerModel.Players)
-                        OldPlayerNamesList.Add(player.Name);
+                    SendMail sm = new SendMail(user, password);
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine(_Server.ServerModel.ToString() + "\r\n\r\nNew players:");
+                    foreach (var player in _PlayersChange)
+                        sb.AppendLine(player.ToString());
+                    sm.Send("nemanja.simovic@brezna.info",
+                        string.Format("Players changed on server '{0}'. Map '{1}", _Server.ServerModel.Name, _Server.ServerModel.Map),
+                        sb.ToString());
                 }
             }
-            return notification.ToString();
+        }
+
+        private void ReadUserAndPasswordFromRegistry(out string user, out string password)
+        {
+            Microsoft.Win32.RegistryKey key;
+            key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("Software\\Nemanja\\CounterStrikeAlerter");
+            user = (string)key.GetValue("GMailUser");
+            password = (string)key.GetValue("GMailPass");
+            key.Close();
+        }
+
+        private ObservableCollection<Player> _PlayersChange;
+        public ObservableCollection<Player> PlayersChange
+        {
+            get { return _PlayersChange; }
+        }
+
+        private ObservableCollection<Player> GetPlayersChange()
+        {
+            var playersChanged = new ObservableCollection<Player>();
+            try
+            {
+                if (_Server.QueryServer())
+                {
+                    if (_Server.ServerModel.ActualPlayers > 0)
+                    {
+                        IEnumerable<string> newPlayerDifferences = _Server.ServerModel.Players.Select(player => player.Name).Except(OldPlayerNamesList);
+
+                        // Look for a new players.
+                        if (newPlayerDifferences.Count() > 0)
+                        {
+                            byte index = 1;
+                            foreach (var player in _Server.ServerModel.Players.Where(player => newPlayerDifferences.Any(playerName => playerName == player.Name)).OrderByDescending(player => player.Score))
+                            {
+                                playersChanged.Add(new Player()
+                                {
+                                    Index = index++,
+                                    Name = player.Name,
+                                    Score = player.Score,
+                                    Duration = player.Duration
+                                });
+                            }
+                            OldPlayerNamesList.Clear();
+                            foreach (var player in _Server.ServerModel.Players)
+                                OldPlayerNamesList.Add(player.Name);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message, "GetPlayersChange()");
+            }
+
+            return playersChanged;
         }
 
         List<string> OldPlayerNamesList = new List<string>();
-        bool IsPlayersChanged = true;
-        IEnumerable<string> PlayerDifferences;
 
         public void StartMonitoring()
         {
             MonitorWorker.RunWorkerAsync();
         }
 
-        private string _NotifyText;
-
-        public string NotifyText
+        Server _Server;
+        public Server Server
         {
-            get { return _NotifyText; }
+            get { return _Server; }
             set
             {
-                _NotifyText = value;
-                RaisePropertyChanged(nameof(NotifyText));
+                _Server = value;
+                RaisePropertyChanged(nameof(Server));
             }
-        }
-
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

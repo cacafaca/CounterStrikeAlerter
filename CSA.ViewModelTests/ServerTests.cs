@@ -13,6 +13,7 @@ namespace CSA.ViewModel.Tests
     {
         string GlobalGamingNisAddress = "193.104.68.49:27040";
         string StyleIndungiAddress = "93.119.24.12:27015";
+        
         /// <summary>
         /// Source server test
         /// </summary>
@@ -20,7 +21,7 @@ namespace CSA.ViewModel.Tests
         public void QueryServerHeaderTest_Source()
         {
             Server server = new Server(GlobalGamingNisAddress);
-            server.QueryServerHeader();
+            Assert.IsTrue(server.QueryServerHeader());
             Assert.AreEqual("Global Gaming Nis", server.ServerModel.Name);
         }
 
@@ -28,7 +29,7 @@ namespace CSA.ViewModel.Tests
         public void QueryPlayerTest_Source()
         {
             Server server = new Server(GlobalGamingNisAddress);
-            server.QueryPlayers();
+            Assert.IsTrue(server.QueryPlayers());
             foreach (var player in server.ServerModel.Players)
             {
                 System.Diagnostics.Trace.WriteLine(player.ToString());

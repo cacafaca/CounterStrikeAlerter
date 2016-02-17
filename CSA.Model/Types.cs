@@ -57,4 +57,18 @@ namespace CSA.Model
         HalfLife = 0,
         HalfLifeMod = 1
     }
+
+    public enum GoldSourceModType
+    {
+        Unknown,
+        SingleAndMultiplayer = 0,
+        MultiplayerOnly = 1
+    }
+
+    public enum GoldSourceModDll
+    {
+        Unknown,
+        HalfLife = 0,
+        Own = 1
+    }
 }

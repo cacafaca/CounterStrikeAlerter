@@ -25,19 +25,31 @@ namespace CounterStrikeAlerter.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("93.119.24.12:27015")]
+        [global::System.Configuration.DefaultSettingValueAttribute("20000")]
+        public int BaloonHideInterval {
+            get {
+                return ((int)(this["BaloonHideInterval"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("193.104.68.49:27040")]
         public string ServerAddressAndPort {
             get {
                 return ((string)(this["ServerAddressAndPort"]));
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("20000")]
-        public int BaloonHideInterval {
+        [global::System.Configuration.DefaultSettingValueAttribute("00:00:05")]
+        public global::System.TimeSpan ServerReadInterval {
             get {
-                return ((int)(this["BaloonHideInterval"]));
+                return ((global::System.TimeSpan)(this["ServerReadInterval"]));
+            }
+            set {
+                this["ServerReadInterval"] = value;
             }
         }
     }

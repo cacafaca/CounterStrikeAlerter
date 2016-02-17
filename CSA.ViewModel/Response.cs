@@ -25,12 +25,16 @@ namespace CSA.ViewModel
 
         public byte GetNextByte()
         {
-            SkipHeader();
-            if (Value != null && Value.Length > Position)
+            if (Value != null)
             {
-                return Value[Position++];
+                if (Value.Length > Position)
+                {
+                    SkipHeader();
+                    return Value[Position++];
+                }
+                throw new Exception("Array overflow.");
             }
-            throw new Exception("Array overflow.");
+            throw new ArgumentNullException(nameof(Value));
         }
 
         public string GetNextString()
@@ -39,11 +43,16 @@ namespace CSA.ViewModel
             if (Value != null && Value.Length > Position)
             {
                 int endPos = Array.IndexOf(Value, (byte)0x0, Position);
-                int length = endPos - Position;
-                byte[] result = new byte[length];
-                Array.Copy(Value, Position, result, 0, length);
-                Position = endPos + 1;
-                return Encoding.Default.GetString(result);
+                if (endPos != -1)
+                {
+                    int length = endPos - Position;
+                    byte[] result = new byte[length];
+                    Array.Copy(Value, Position, result, 0, length);
+                    Position = endPos + 1;
+                    return Encoding.Default.GetString(result);
+                }
+                else
+                    return string.Empty;
             }
             throw new Exception("Array overflow.");
         }
@@ -83,10 +92,23 @@ namespace CSA.ViewModel
 
         public byte[] GetChallenge()
         {
-            const int challegeSize = 4;
-            byte[] result = new byte[challegeSize];
-            Array.Copy(Value, 5, result, 0, challegeSize);
-            return result;
+            if (Value != null)
+            {
+                const int challegeSize = 4;
+                byte[] result = new byte[challegeSize];
+                Array.Copy(Value, 5, result, 0, challegeSize);
+                return result;
+            }
+            else
+                return null;
+        }
+
+        public override string ToString()
+        {
+            if (Value != null)
+                return CSA.Common.Util.ByteArrayToString(Value);
+            else
+                return string.Empty;
         }
     }
 }

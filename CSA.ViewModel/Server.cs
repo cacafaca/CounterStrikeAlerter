@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -8,17 +9,25 @@ using System.Threading.Tasks;
 
 namespace CSA.ViewModel
 {
-    public class Server
+    public class Server : BaseViewModel
     {
         /**
         https://developer.valvesoftware.com/wiki/Server_queries
         */
 
-        const string A2S_INFO = "TSource Engine Query\x00"; // Basic information about the server. 
-        const string A2S_PLAYER = "U\xFF\xFF\xFF\xFF";
-
-
         private CSA.Model.BaseServer _ServerModel;
+
+        public Model.BaseServer ServerModel
+        {
+            get
+            {
+                if (_ServerModel != null)
+                    return _ServerModel;
+                else
+                    throw new Exception("Read server first.");
+            }
+        }
+
         private Socket SocketUDP;
 
         public Server(string address, int port)
@@ -36,6 +45,7 @@ namespace CSA.ViewModel
 
         private string Address;
         private int Port;
+        IPEndPoint EndPoint;
 
         private void ConstructiorInitialization(string address, int port)
         {
@@ -43,6 +53,7 @@ namespace CSA.ViewModel
             Port = port;
             SocketUDP = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             SocketUDP.Blocking = false;
+            EndPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
         }
 
         private void ParseServerAndPort(string addressAndPort, out string address, out int port)
@@ -52,23 +63,24 @@ namespace CSA.ViewModel
             int.TryParse(addressAndPort.Substring(delimiterPosition + 1), out port);
         }
 
-        public void QueryServerHeader()
+        public bool QueryServerHeader()
         {
-            byte[] basicInfo;
+            System.Diagnostics.Debug.WriteLine("Start quering server header.", "QueryServerHeader()");
+
+            byte[] basicInfo = null;
             AskServer(Request.ServerInfo, out basicInfo);
+            if (basicInfo == null)
+                return false;
             Response response = new Response(basicInfo);
             ParseBasicInfo(response);
-        }
 
-        public Model.BaseServer ServerModel
-        {
-            get
-            {
-                if (_ServerModel != null)
-                    return _ServerModel;
-                else
-                    throw new Exception("Read server first.");
-            }
+            Name = _ServerModel.Name;
+            Map = _ServerModel.Map;
+            CurrentPlayers = string.Format("{0}/{1}", _ServerModel.ActualPlayers, _ServerModel.MaxPlayers);
+
+            System.Diagnostics.Debug.WriteLine("Finished quering server header. Info: " + _ServerModel.ToString(), "QueryServerHeader()");
+
+            return true;
         }
 
         private void ParseBasicInfo(Response response)
@@ -81,12 +93,13 @@ namespace CSA.ViewModel
                 {
                     _ServerModel = new Model.SourceServer(Address, Port);
                     _ServerModel.Header = Model.Header.Source;
+                    //_ServerModel.Players.CollectionChanged += ServerModelPlayers_CollectionChanged;
                     ParseBasicInfoForSource(response);
                 }
                 else if (engineIndicator == (byte)Model.Header.GoldSource)
                 {
                     _ServerModel = new Model.GoldSourceServer(Address, Port);
-                    ServerModel.Header = Model.Header.Source;
+                    _ServerModel.Header = Model.Header.GoldSource;
                     ParseBasicInfoForGoldSource(response);
                 }
                 else
@@ -139,6 +152,17 @@ namespace CSA.ViewModel
                 serverModel.Environment = (Model.Environment)response.GetNextByte();
                 serverModel.Visibility = (Model.Visibility)response.GetNextByte();
                 serverModel.Mod = (Model.GoldSourceMod)response.GetNextByte();
+                if (serverModel.Mod == Model.GoldSourceMod.HalfLifeMod)
+                {
+                    serverModel.Link = response.GetNextString();
+                    serverModel.DownloadLink = response.GetNextString();
+                    if (response.GetNextByte() != 0x00)
+                        throw new ArgumentException("Expect NULL (0x00).");
+                    serverModel.Version = response.GetNextInt();
+                    serverModel.Size = response.GetNextInt();
+                    serverModel.Type = (Model.GoldSourceModType)response.GetNextByte();
+                    serverModel.Dll = (Model.GoldSourceModDll)response.GetNextByte();
+                }
                 serverModel.Vac = (Model.Vac)response.GetNextByte();
                 serverModel.Bots = response.GetNextByte();
             }
@@ -156,13 +180,15 @@ namespace CSA.ViewModel
             return value;
         }
 
+        const byte ResponseHeader = 0x44;
+
         private void ParsePlayersInfo(Response response)
         {
             if (response != null)
             {
                 // Strip header
                 byte header = response.GetNextByte();
-                if (header == 0x44)
+                if (header == ResponseHeader)
                 {
                     byte numberOfPlayers = response.GetNextByte();
                     for (byte i = 0; i < numberOfPlayers; i++)
@@ -180,23 +206,46 @@ namespace CSA.ViewModel
             }
         }
 
-        public void QueryPlayers()
+        public bool QueryPlayers()
         {
-            if (_ServerModel == null)
-                QueryServerHeader();
+            System.Diagnostics.Debug.WriteLine("Start quering players.", "QueryPlayers()");
 
-            _ServerModel.Players.Clear();
+            bool headerWasRead = _ServerModel != null;
+            if (!headerWasRead)
+                headerWasRead = QueryServerHeader();
+            if (headerWasRead)
+            {
+                _ServerModel.Players.Clear();
 
-            // Challenge server before fetching players list.
-            byte[] challenge;
-            AskServer(Request.PlayerInfoChallenge, out challenge);
-            Response response = new Response(challenge);
+                // Challenge server before fetching players list.
+                byte[] challenge = null;
+                AskServer(Request.PlayerInfoChallenge, out challenge);
+                if (challenge == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
+                    return false;
+                }
+                Response response = new Response(challenge);
 
-            // Get Players
-            byte[] playerInfo;
-            AskServer(Request.GetPlayersRequest(response.GetChallenge()), out playerInfo);
-            response = new Response(playerInfo);
-            ParsePlayersInfo(response);
+                // Get Players
+                byte[] playerInfo = null;
+                AskServer(Request.GetPlayersRequest(response.GetChallenge()), out playerInfo);
+                if (playerInfo == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
+                    return false;
+                }
+                response = new Response(playerInfo);
+                ParsePlayersInfo(response);
+                RaisePropertyChanged(nameof(Players));
+                System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
+                return true;
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
+                return false;
+            }
         }
 
         Request Request = new Request();
@@ -204,33 +253,102 @@ namespace CSA.ViewModel
         private void AskServer(byte[] request, out byte[] response)
         {
             response = null;
-            var endPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
-            var x = SocketUDP.SendTo(request, endPoint);
-
-            byte[] wholeResponse = new byte[10240];
-            int count = 0;
-            var endPoint2 = endPoint as EndPoint;
-            System.Threading.Thread.Sleep(1000); // Give server one second to respond.
-            try
+            if (request != null)
             {
-                count = SocketUDP.ReceiveFrom(wholeResponse, ref endPoint2);
-                if (count > 0 && count <= wholeResponse.Length)
+                var x = SocketUDP.SendTo(request, EndPoint);
+
+                int count = 0;
+                var receiveEndPoint = EndPoint as EndPoint;
+                try
                 {
-                    response = new byte[count];
-                    Array.Copy(wholeResponse, response, count);
+                    int retry = 0;
+                    while (SocketUDP.Available == 0 && retry < 3)
+                    {
+                        System.Threading.Thread.Sleep(100); // Wait for an answer.
+                        retry++;
+                    }
+                    if (SocketUDP.Available > 0)
+                    {
+                        response = new byte[SocketUDP.Available];
+                        count = SocketUDP.ReceiveFrom(response, ref receiveEndPoint);
+                        if (SocketUDP.Available > 0)
+                        {
+                            throw new Exception("More to read.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
                 }
             }
-            catch (Exception ex)
-            {
+        }
 
+        public bool QueryServer()
+        {
+            if (QueryServerHeader() && _ServerModel.ActualPlayers > 0)
+                return QueryPlayers();
+            else
+                return false;
+        }
+
+        private string _Name;
+        public string Name
+        {
+            get { return _Name; }
+            private set
+            {
+                _Name = value;
+                RaisePropertyChanged(nameof(Name));
             }
         }
 
-        public void QueryServer()
+        private string _Map;
+
+        public string Map
         {
-            QueryServerHeader();
-            QueryPlayers();
+            get { return _Map; }
+            private set
+            {
+                _Map = value;
+                RaisePropertyChanged(nameof(Map));
+            }
         }
+
+        private string _CurrentPlayers;
+
+        public string CurrentPlayers
+        {
+            get { return _CurrentPlayers; }
+            private set
+            {
+                _CurrentPlayers = value;
+                RaisePropertyChanged(nameof(CurrentPlayers));
+            }
+        }
+
+        public ObservableCollection<Player> Players
+        {
+            get
+            {
+                var oc = new ObservableCollection<Player>();
+                if (_ServerModel != null && _ServerModel.Players != null)
+                {
+                    var pl = _ServerModel.Players.ToList();
+                    foreach (var player in pl)
+                        if (player != null)
+                            oc.Add(new Player()
+                            {
+                                Index = player.Index,
+                                Name = player.Name,
+                                Score = player.Score,
+                                Duration = player.Duration
+                            });
+                }
+                return oc;
+            }
+        }
+
     }
 
 }

@@ -36,6 +36,14 @@ namespace CounterStrikeAlerter
         private void AddContextmenu()
         {
             NotifyIcon.ContextMenuStrip = new ContextMenuStrip();
+
+            NotifyIcon.ContextMenuStrip.Items.Add("GMail user&pass", null,
+                delegate (object sender, EventArgs e)
+                {
+                    if (GmailUserPass != null)
+                        GmailUserPass(sender, e);
+                });
+
             NotifyIcon.ContextMenuStrip.Items.Add("Exit", null,
                 delegate (object sender, EventArgs e)
                 {
@@ -45,5 +53,6 @@ namespace CounterStrikeAlerter
         }
 
         public event EventHandler ExitHandler;
+        public event EventHandler GmailUserPass;
     }
 }
