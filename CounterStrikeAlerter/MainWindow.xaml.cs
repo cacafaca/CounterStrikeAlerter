@@ -79,6 +79,7 @@ namespace CounterStrikeAlerter
 
         private void TrayIcon_Click(object sender, EventArgs e)
         {
+            ((MainViewModel)DataContext).ServerMonitor.RefreshPlayers();
             ShowFormForAPeriodOfTime();
         }
 
