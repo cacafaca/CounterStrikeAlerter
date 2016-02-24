@@ -82,6 +82,12 @@ namespace CSA.ViewModel
             }
         }
 
+        public void RefreshPlayers()
+        {
+            _PlayersChange = new ObservableCollection<Player>(_Server.Players.ToList());
+            RaisePropertyChanged(nameof(PlayersChange));
+        }
+
         private void ReadUserAndPasswordFromRegistry(out string user, out string password)
         {
             Microsoft.Win32.RegistryKey key;
