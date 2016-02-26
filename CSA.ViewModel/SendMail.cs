@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSA.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,19 +9,25 @@ namespace CSA.ViewModel
 {
     public class SendMail
     {
-        public SendMail(string user, string pass)
+        public SendMail()
         {
-            User = user;
-            Pass = pass;
         }
 
         private string User;
-        private string Pass;
+        private string Password;
+
+        private void ReadUserAndPasswordFromRegistry()
+        {
+            RegistrySettings regSet = new RegistrySettings();
+            User = regSet.GMailUser;
+            Password = regSet.GMailPass;
+        }
 
         public void Send(string to, string subject, string body)
         {
-            var credential = new System.Net.NetworkCredential(User, Pass);
-            CSA.Common.SendMail sm = new Common.SendMail("smtp.gmail.com", 25, credential);
+            ReadUserAndPasswordFromRegistry();
+            var credential = new System.Net.NetworkCredential(User, Password);
+            CSA.Common.SendMail sm = new Common.SendMail("smtp.gmail.com", 587, credential);
             sm.Send(to, subject, body);
         }
     }

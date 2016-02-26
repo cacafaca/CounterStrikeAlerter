@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CSA.Common;
 
 namespace CSA.ViewModel
 {
@@ -66,19 +67,44 @@ namespace CSA.ViewModel
         {
             if (_PlayersChange.Count > 0)
             {
-                string user, password;
-                ReadUserAndPasswordFromRegistry(out user, out password);
-                if (!string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password))
-                {
-                    SendMail sm = new SendMail(user, password);
-                    StringBuilder sb = new StringBuilder();
-                    sb.AppendLine(_Server.ServerModel.ToString() + "\r\n\r\nNew players:");
-                    foreach (var player in _PlayersChange)
-                        sb.AppendLine(player.ToString());
-                    sm.Send("nemanja.simovic@brezna.info",
-                        string.Format("Players changed on server '{0}'. Map '{1}", _Server.ServerModel.Name, _Server.ServerModel.Map),
-                        sb.ToString());
+                StringBuilder messageBody = new StringBuilder();
+                messageBody.AppendLine("<html>");
+                messageBody.AppendLine(@"
+    <head>
+        <style type=""text/css"">
+            table, th, td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 2px;
+            }
+        </style>
+    </head>
+"
+                );
+                messageBody.AppendLine(_Server.ServerModel.ToString() + "<br/><br/>New players:");
+                messageBody.AppendLine(@"
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Score</th>
+        </tr>
+    </thead>
+");
+                messageBody.AppendLine("<tbody>");
+                foreach (var player in _PlayersChange)
+                {                     
+                    messageBody.AppendLine(string.Format("<tr><td>{0}</td><td>{1}</td></tr>", player.Name, player.Score));
                 }
+                messageBody.AppendLine("</tbody>");
+                messageBody.AppendLine("</table>");
+                messageBody.AppendLine("</html>");
+                SendMail sm = new SendMail();
+                sm.Send("nemanja.simovic@brezna.info",
+                    string.Format("Players changed on server '{0}'. Map '{1}", _Server.ServerModel.Name, _Server.ServerModel.Map),
+                    messageBody.ToString());
             }
         }
 
@@ -86,15 +112,6 @@ namespace CSA.ViewModel
         {
             _PlayersChange = new ObservableCollection<Player>(_Server.Players.ToList());
             RaisePropertyChanged(nameof(PlayersChange));
-        }
-
-        private void ReadUserAndPasswordFromRegistry(out string user, out string password)
-        {
-            Microsoft.Win32.RegistryKey key;
-            key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("Software\\Nemanja\\CounterStrikeAlerter");
-            user = (string)key.GetValue("GMailUser");
-            password = (string)key.GetValue("GMailPass");
-            key.Close();
         }
 
         private ObservableCollection<Player> _PlayersChange;

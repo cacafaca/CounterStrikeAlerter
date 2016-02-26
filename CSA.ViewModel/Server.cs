@@ -279,7 +279,7 @@ namespace CSA.ViewModel
                 }
                 catch (Exception ex)
                 {
-
+                    System.Diagnostics.Debug.WriteLine("AskServer: " + ex.Message);
                 }
             }
         }

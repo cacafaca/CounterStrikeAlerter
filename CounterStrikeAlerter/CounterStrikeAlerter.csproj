@@ -129,6 +129,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CSA.Common\CSA.Common.csproj">
+      <Project>{dc5ba645-313c-4d49-9ac2-75b8ac5eb274}</Project>
+      <Name>CSA.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CSA.ViewModel\CSA.ViewModel.csproj">
       <Project>{5d35b7e9-fe4c-40dd-8c5f-9964f60be44b}</Project>
       <Name>CSA.ViewModel</Name>

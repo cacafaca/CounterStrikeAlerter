@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CSA.Common.Tests
+namespace CSA.CommonTests
 {
     [TestClass()]
     public class SendMailTests

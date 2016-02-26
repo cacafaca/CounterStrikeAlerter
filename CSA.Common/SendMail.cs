@@ -30,7 +30,15 @@ namespace CSA.Common
             MailMessage message = new MailMessage(From, to, subject, body);
             message.BodyEncoding = UTF8Encoding.UTF8;
             message.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
-            Client.Send(message);
+            message.IsBodyHtml = true;
+            try
+            {
+                Client.Send(message);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Can't send mail: " + ex.Message);
+            }
         }
     }
 }

@@ -5,14 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CounterStrikeAlerter"
         mc:Ignorable="d"
-        Title="GmailSettings" Height="159.292" Width="300" SizeToContent="Height">
+        Title="Gmail settings" Height="291.292" Width="300" SizeToContent="Height">
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
     <Grid>
         <StackPanel Margin="3">
-            <Label x:Name="label" Content="email address"/>
-            <TextBox x:Name="userTextBox" Height="23" TextWrapping="Wrap" Text="TextBox"/>
-            <Label x:Name="label1" Content="password"/>
-            <TextBox x:Name="passwordTextBox" Height="23" TextWrapping="Wrap" Text="TextBox"/>
-            <Button x:Name="saveButton" Content="Save" Click="saveButton_Click"/>
+            <CheckBox x:Name="sendMailActive" Content="Send mail active" Checked="sendMailActive_Checked" IsChecked="{Binding GmailSettings.SendEmailActive}"/>
+            <Label x:Name="fromEmailAddressLabel" Content="email address"/>
+            <TextBox x:Name="fromEmailAddress" Height="23" TextWrapping="Wrap" Text="{Binding GmailSettings.GMailUser}"/>
+            <Label x:Name="passwordLabel" Content="password"/>
+            <PasswordBox x:Name="password" Height="23" />
+            <Label x:Name="toEmailAddressesLabel" Content="email addresses (separated bz ;)"/>
+            <TextBox x:Name="toEmailAddresses" Height="107" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Text="{Binding GmailSettings.Address}"/>
+            <Button x:Name="closeButton" Content="Close" Click="closeButton_Click"/>
         </StackPanel>
 
     </Grid>

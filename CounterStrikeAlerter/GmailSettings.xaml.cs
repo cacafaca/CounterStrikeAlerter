@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using CSA.Common;
 
 namespace CounterStrikeAlerter
 {
@@ -24,19 +25,23 @@ namespace CounterStrikeAlerter
             InitializeComponent();
         }
 
-        private void saveButton_Click(object sender, RoutedEventArgs e)
+        private void sendMailActive_Checked(object sender, RoutedEventArgs e)
         {
-            SaveToRegistry();
-            Close();
+            if (sendMailActive.IsChecked == null)
+                sendMailActive.IsChecked = false;
+            ToggleGmailSettings((bool)sendMailActive.IsChecked);
         }
 
-        private void SaveToRegistry()
+        private void ToggleGmailSettings(bool enable)
         {
-            Microsoft.Win32.RegistryKey key;
-            key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("Software\\Nemanja\\CounterStrikeAlerter");
-            key.SetValue("GMailUser", userTextBox.Text);
-            key.SetValue("GMailPass", passwordTextBox.Text);
-            key.Close();
+            fromEmailAddress.IsEnabled = enable;
+            toEmailAddresses.IsEnabled = enable;
+            password.IsEnabled = enable;
+        }
+
+        private void closeButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

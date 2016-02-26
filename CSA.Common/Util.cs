@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +21,16 @@ namespace CSA.Common
             }
             else
                 return string.Empty;
+        }
+
+        public static string Encrypt(string value)
+        {
+            return value.Encrypt();
+        }
+
+        public static string Decrypt(string value)
+        {
+            return value.Decrypt();
         }
     }
 }

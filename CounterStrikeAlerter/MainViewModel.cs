@@ -20,5 +20,18 @@ namespace CounterStrikeAlerter
                 RaisePropertyChanged(nameof(ServerMonitor));
             }
         }
+
+        private CSA.ViewModel.GmailSettings _GmailSettings;
+
+        public CSA.ViewModel.GmailSettings GmailSettings
+        {
+            get { return _GmailSettings; }
+            set
+            {
+                _GmailSettings = value;
+                RaisePropertyChanged(nameof(GmailSettings));
+            }
+        }
+
     }
 }
