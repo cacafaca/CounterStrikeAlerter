@@ -10,6 +10,12 @@ namespace CounterStrikeAlerter
 {
     public class MainViewModel : BaseViewModel
     {
+        public MainViewModel()
+        {
+            _ServerMonitor = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort, Properties.Settings.Default.ServerReadInterval);
+            _GmailSettings = new CSA.ViewModel.GmailSettings();
+        }
+
         private ServerMonitor _ServerMonitor;
         public ServerMonitor ServerMonitor
         {

@@ -34,9 +34,12 @@ namespace CounterStrikeAlerter
 
         private void ToggleGmailSettings(bool enable)
         {
-            fromEmailAddress.IsEnabled = enable;
-            toEmailAddresses.IsEnabled = enable;
-            password.IsEnabled = enable;
+            if (fromEmailAddress != null)
+            {
+                fromEmailAddress.IsEnabled = enable;
+                toEmailAddresses.IsEnabled = enable;
+                password.IsEnabled = enable;
+            }
         }
 
         private void closeButton_Click(object sender, RoutedEventArgs e)

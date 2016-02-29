@@ -25,41 +25,35 @@ namespace CSA.ViewModel
             }
         }
 
-        private string _GMailPass;
-
         public string GMailPass
         {
-            get { return _GMailPass; }
+            get { return RegistrySettinga.GMailPass; }
             set
             {
-                _GMailPass = value;
+                RegistrySettinga.GMailPass = value;
                 RaisePropertyChanged(nameof(GMailPass));
             }
         }
-
-        private string _Address;
 
         /// <summary>
         /// Separate email addresses with semicolon.
         /// </summary>
         public string Addresses
         {
-            get { return _Address; }
+            get { return RegistrySettinga.Addresses; }
             set
             {
-                _Address = value;
+                RegistrySettinga.Addresses = value;
                 RaisePropertyChanged(nameof(Addresses));
             }
         }
 
-        private bool _SendEmailActive;
-
         public bool SendEmailActive
         {
-            get { return _SendEmailActive; }
+            get { return RegistrySettinga.SendEmailActive; }
             set
             {
-                _SendEmailActive = value;
+                RegistrySettinga.SendEmailActive = value;
                 RaisePropertyChanged(nameof(SendEmailActive));
             }
         }

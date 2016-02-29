@@ -17,7 +17,7 @@
             <Label x:Name="passwordLabel" Content="password"/>
             <PasswordBox x:Name="password" Height="23" />
             <Label x:Name="toEmailAddressesLabel" Content="email addresses (separated bz ;)"/>
-            <TextBox x:Name="toEmailAddresses" Height="107" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Text="{Binding GmailSettings.Address}"/>
+            <TextBox x:Name="toEmailAddresses" Height="107" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Text="{Binding GmailSettings.Addresses}"/>
             <Button x:Name="closeButton" Content="Close" Click="closeButton_Click"/>
         </StackPanel>
 

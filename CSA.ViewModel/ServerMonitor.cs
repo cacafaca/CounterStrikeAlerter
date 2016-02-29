@@ -20,6 +20,7 @@ namespace CSA.ViewModel
                 MonitorSleepInterval = DefaultMonitorSleepInterval;
             _Server = server;
             _PlayersChange = new ObservableCollection<Player>();
+            RegistrySettings = new RegistrySettings();
             MonitorWorker = new BackgroundWorker();
             MonitorWorker.DoWork += MonitorWorker_DoWork;
         }
@@ -51,7 +52,8 @@ namespace CSA.ViewModel
                 if (_PlayersChange != null && _PlayersChange.Count > 0)
                 {
                     RaisePropertyChanged(nameof(PlayersChange));
-                    SendMailThatPlayersAreChanged();
+                    if (RegistrySettings.SendEmailActive)
+                        SendMailThatPlayersAreChanged();
                 }
 
                 System.Threading.Thread.Sleep(MonitorSleepInterval);
@@ -67,9 +69,12 @@ namespace CSA.ViewModel
         {
             if (_PlayersChange.Count > 0)
             {
-                StringBuilder messageBody = new StringBuilder();
-                messageBody.AppendLine("<html>");
-                messageBody.AppendLine(@"
+                var addresses = RegistrySettings.AddressesList();
+                if (addresses.Count > 0)
+                {
+                    StringBuilder messageBody = new StringBuilder();
+                    messageBody.AppendLine("<html>");
+                    messageBody.AppendLine(@"
     <head>
         <style type=""text/css"">
             table, th, td {
@@ -82,9 +87,9 @@ namespace CSA.ViewModel
         </style>
     </head>
 "
-                );
-                messageBody.AppendLine(_Server.ServerModel.ToString() + "<br/><br/>New players:");
-                messageBody.AppendLine(@"
+                    );
+                    messageBody.AppendLine(_Server.ServerModel.ToString() + "<br/><br/>New players:");
+                    messageBody.AppendLine(@"
 <table>
     <thead>
         <tr>
@@ -93,20 +98,25 @@ namespace CSA.ViewModel
         </tr>
     </thead>
 ");
-                messageBody.AppendLine("<tbody>");
-                foreach (var player in _PlayersChange)
-                {                     
-                    messageBody.AppendLine(string.Format("<tr><td>{0}</td><td>{1}</td></tr>", player.Name, player.Score));
+                    messageBody.AppendLine("<tbody>");
+                    foreach (var player in _PlayersChange)
+                    {
+                        messageBody.AppendLine(string.Format("<tr><td>{0}</td><td>{1}</td></tr>", player.Name, player.Score));
+                    }
+                    messageBody.AppendLine("</tbody>");
+                    messageBody.AppendLine("</table>");
+                    messageBody.AppendLine("</html>");
+                    SendMail sm = new SendMail();
+                    foreach (var adr in addresses)
+                        if (!string.IsNullOrWhiteSpace(adr))
+                            sm.Send(adr,
+                                string.Format("Players changed on server '{0}'. Map '{1}", _Server.ServerModel.Name, _Server.ServerModel.Map),
+                                messageBody.ToString());
                 }
-                messageBody.AppendLine("</tbody>");
-                messageBody.AppendLine("</table>");
-                messageBody.AppendLine("</html>");
-                SendMail sm = new SendMail();
-                sm.Send("nemanja.simovic@brezna.info",
-                    string.Format("Players changed on server '{0}'. Map '{1}", _Server.ServerModel.Name, _Server.ServerModel.Map),
-                    messageBody.ToString());
             }
         }
+
+        RegistrySettings RegistrySettings;
 
         public void RefreshPlayers()
         {

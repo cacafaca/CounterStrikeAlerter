@@ -34,8 +34,6 @@ namespace CounterStrikeAlerter
 
         private void CustomInitialization()
         {
-            ((MainViewModel)DataContext).ServerMonitor = new ServerMonitor(Properties.Settings.Default.ServerAddressAndPort, Properties.Settings.Default.ServerReadInterval);
-
             Hide();
             SetWindowLocationAndSize();
             ShowInTaskbar = false;
