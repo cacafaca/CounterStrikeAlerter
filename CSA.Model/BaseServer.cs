@@ -224,5 +224,15 @@ namespace CSA.Model
         {
             return string.Format("Address:{0}; Port:{1}", _Address, _Port);
         }
+
+        public abstract BaseServer Copy();
+
+        public ObservableCollection<Player> PlayersCopy()
+        {
+            ObservableCollection<Player> newPlayers = new ObservableCollection<Player>();
+            foreach (var player in Players)
+                newPlayers.Add(player.Copy());
+            return newPlayers;
+        }
     }
 }

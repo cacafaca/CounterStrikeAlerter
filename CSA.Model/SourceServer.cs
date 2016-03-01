@@ -58,5 +58,26 @@ namespace CSA.Model
         {
             return string.Format("Server name:{0}; Map:{1}; Players/Max:{2}/{3}", Name, Map, ActualPlayers, MaxPlayers);
         }
+
+        public override BaseServer Copy()
+        {
+            SourceServer newInstance = new SourceServer(Address, Port);
+            newInstance.Protocol = Protocol;
+            newInstance.Name = Name;
+            newInstance.Map = Map;
+            newInstance.Folder = Folder;
+            newInstance.Game = Game;
+            newInstance.Id = Id;
+            newInstance.ActualPlayers = ActualPlayers;
+            newInstance.MaxPlayers = MaxPlayers;
+            newInstance.Bots = Bots;
+            newInstance.ServerType = ServerType;
+            newInstance.Environment = Environment;
+            newInstance.Visibility = Visibility;
+            newInstance.Vac = Vac;
+            newInstance.Version = Version;
+            newInstance.Players = PlayersCopy();
+            return newInstance;
+        }
     }
 }

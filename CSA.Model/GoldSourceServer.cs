@@ -105,5 +105,32 @@ namespace CSA.Model
         {
             return string.Format("Server name:{0}; Map:{1}; Players/Max:{2}/{3}", Name, Map, ActualPlayers, MaxPlayers);
         }
+
+        public override BaseServer Copy()
+        {
+            GoldSourceServer newInstance = new GoldSourceServer(Address, Port);
+            newInstance.InternalAddress = InternalAddress;
+            newInstance.Name = Name;
+            newInstance.Map = Map;
+            newInstance.Folder = Folder;
+            newInstance.Game = Game;
+            newInstance.ActualPlayers = ActualPlayers;
+            newInstance.MaxPlayers = MaxPlayers;
+            newInstance.Protocol = Protocol;
+            newInstance.ServerType = ServerType;
+            newInstance.Environment = Environment;
+            newInstance.Visibility = Visibility;
+            newInstance.Mod = Mod;
+            newInstance.Link = Link;
+            newInstance.DownloadLink = DownloadLink;
+            newInstance.Version = Version;
+            newInstance.Size = Size;
+            newInstance.Type = Type;
+            newInstance.Dll = Dll;
+            newInstance.Vac = Vac;
+            newInstance.Bots = Bots;
+            newInstance.Players = PlayersCopy();
+            return newInstance;
+        }
     }
 }

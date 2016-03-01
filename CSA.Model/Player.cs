@@ -61,5 +61,15 @@ namespace CSA.Model
         {
             return string.Format("Name:{0}; Frags:{1}; Time:{2}", _Name, _Score, _Duration.ToString(@"hh\:mm\:ss"));
         }
+
+        public Player Copy()
+        {
+            Player playerCopy = new Player();
+            playerCopy.Index = Index;
+            playerCopy.Name = Name;
+            playerCopy.Score = Score;
+            playerCopy.Duration = Duration;
+            return playerCopy;
+        }
     }
 }
