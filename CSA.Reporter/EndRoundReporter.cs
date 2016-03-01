@@ -24,10 +24,10 @@ namespace CSA.Reporter
             CanWork = false;
             Server = new ViewModel.Server("192.162.0.147:27015:");
             EndRoundWorker = new BackgroundWorker();
-            EndRoundWorker.DoWork += ListernEndRound;
+            EndRoundWorker.DoWork += ListenEndRound;
         }
 
-        private void ListernEndRound(object sender, DoWorkEventArgs e)
+        private void ListenEndRound(object sender, DoWorkEventArgs e)
         {
             Model.BaseServer oldServer;
             Server.QueryServer();
@@ -37,7 +37,7 @@ namespace CSA.Reporter
             {
                 Server.QueryServer();
                 if (IsNewRound(oldServer, Server.ServerModel))
-                    ReportEndRoundStats();
+                    ReportEndRoundStats(oldServer);
                 oldServer = Server.ServerModel.Copy();
                 Sleep();
 
@@ -58,9 +58,15 @@ namespace CSA.Reporter
 
         private int SleepTime = 10000;
 
-        private void ReportEndRoundStats()
+        private void ReportEndRoundStats(Model.BaseServer server)
         {
-            throw new NotImplementedException();
+            CSA.ViewModel.SendMail sendMail = new ViewModel.SendMail();
+            string to = "nemanja.simovic@brezna.info";
+            string subject = string.Format("Statistic for server {0} at {1} on map {2}", server.Name, server.ToString(), server.Map);
+            string body = string.Empty;
+            foreach (var player in server.Players)
+                body += player.ToString() + Environment.NewLine;
+            sendMail.Send(to, subject, body);
         }
 
         private bool IsNewRound(Model.BaseServer oldServer, Model.BaseServer newServer)
@@ -77,10 +83,9 @@ namespace CSA.Reporter
                 oldPlayer => new { oldPlayer.Name },
                 (np, op) => new { Name = np.Name, NewScore = np.Score, OldScore = op.Score });
 
-            int samoPlayersCount = samePlayers.Count();
-
-            return samePlayers.Where(player => (player.NewScore - player.OldScore < 0 ) || (player.NewScore == 0 && player.OldScore > 0)
-            }
+            int samePlayersCount = samePlayers.Count();
+            int samePlayersWithResetedScore = samePlayers.Where(player => (player.NewScore - player.OldScore < 0) || (player.NewScore == 0 && player.OldScore > 0)).Count();
+            return samePlayersWithResetedScore / samePlayersCount * 100 > 70;
         }
 
         public void Stop()
