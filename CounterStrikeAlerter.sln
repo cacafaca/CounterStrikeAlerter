@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSA.CommonTests", "CSA.Comm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSA.Reporter", "CSA.Reporter\CSA.Reporter.csproj", "{C93A374F-C2EC-49BB-8A35-3F26B1B6DC02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSA.ReporterTests", "CSA.ReporterTests\CSA.ReporterTests.csproj", "{C3E33F41-1745-4B66-81C0-E033E43EDFDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{C93A374F-C2EC-49BB-8A35-3F26B1B6DC02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C93A374F-C2EC-49BB-8A35-3F26B1B6DC02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C93A374F-C2EC-49BB-8A35-3F26B1B6DC02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3E33F41-1745-4B66-81C0-E033E43EDFDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3E33F41-1745-4B66-81C0-E033E43EDFDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3E33F41-1745-4B66-81C0-E033E43EDFDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3E33F41-1745-4B66-81C0-E033E43EDFDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,5 +66,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{6B432C01-71F8-4CBC-8BD4-798C3E4B701F} = {0A5EC959-4FC2-4BB0-B097-9006F41618CC}
 		{24ECC911-BBD0-411D-AB96-2274ED3FC839} = {0A5EC959-4FC2-4BB0-B097-9006F41618CC}
+		{C3E33F41-1745-4B66-81C0-E033E43EDFDD} = {0A5EC959-4FC2-4BB0-B097-9006F41618CC}
 	EndGlobalSection
 EndGlobal

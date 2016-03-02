@@ -10,7 +10,7 @@ namespace CSA.Common
     {
         public RegistrySettings()
         {
-            csaKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("Software\\Nemanja\\CounterStrikeAlerter");
+            csaKey = Microsoft.Win32.Registry.LocalMachine.CreateSubKey("Software\\Nemanja\\CounterStrikeAlerter");
         }
 
         Microsoft.Win32.RegistryKey csaKey;

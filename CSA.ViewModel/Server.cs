@@ -255,12 +255,12 @@ namespace CSA.ViewModel
             response = null;
             if (request != null)
             {
-                var x = SocketUDP.SendTo(request, EndPoint);
-
-                int count = 0;
-                var receiveEndPoint = EndPoint as EndPoint;
                 try
                 {
+                    var x = SocketUDP.SendTo(request, EndPoint);
+
+                    int count = 0;
+                    var receiveEndPoint = EndPoint as EndPoint;
                     int retry = 0;
                     while (SocketUDP.Available == 0 && retry < 3)
                     {

@@ -33,6 +33,7 @@ namespace CSA.Common
             message.IsBodyHtml = true;
             try
             {
+                System.Diagnostics.Debug.WriteLine("Sending message."); 
                 Client.Send(message);
             }
             catch (Exception ex)
