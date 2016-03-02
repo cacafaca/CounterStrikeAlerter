@@ -35,12 +35,17 @@ namespace CSA.Reporter
             Sleep();
             while (CanWork)
             {
-                Server.QueryServer();
-                if (IsNewRound(oldServer, Server.ServerModel))
-                    ReportEndRoundStats(oldServer);
-                oldServer = Server.ServerModel.Copy();
-                Sleep();
-
+                try
+                {
+                    Server.QueryServer();
+                    if (IsNewRound(oldServer, Server.ServerModel))
+                        ReportEndRoundStats(oldServer);
+                    oldServer = Server.ServerModel.Copy();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                }
 
                 Sleep();
                 if (EndRoundWorker.CancellationPending)
@@ -78,8 +83,8 @@ namespace CSA.Reporter
                 return true;
 
             var samePlayers = newServer.Players.Join(
-                oldServer.Players, 
-                newPlayer => new { newPlayer.Name }, 
+                oldServer.Players,
+                newPlayer => new { newPlayer.Name },
                 oldPlayer => new { oldPlayer.Name },
                 (np, op) => new { Name = np.Name, NewScore = np.Score, OldScore = op.Score });
 
