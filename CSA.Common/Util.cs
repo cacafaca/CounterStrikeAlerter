@@ -32,5 +32,11 @@ namespace CSA.Common
         {
             return value.Decrypt();
         }
+
+        public static string GetAppPath()
+        {
+            return System.IO.Path.GetDirectoryName(
+                AppDomain.CurrentDomain.BaseDirectory);
+        }
     }
 }

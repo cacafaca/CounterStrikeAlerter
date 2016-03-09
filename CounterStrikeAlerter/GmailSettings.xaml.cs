@@ -46,5 +46,23 @@ namespace CounterStrikeAlerter
         {
             Close();
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            ToggleGmailSettings((bool)sendMailActive.IsChecked);
+        }
+
+        private void password_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            MainViewModel.GmailSettings.GMailPass = ((PasswordBox)sender).Password.Encrypt();
+        }
+
+        private MainViewModel MainViewModel
+        {
+            get
+            {
+                return (MainViewModel)DataContext;
+            }
+        }
     }
 }

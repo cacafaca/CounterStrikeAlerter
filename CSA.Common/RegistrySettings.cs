@@ -6,32 +6,40 @@ using System.Threading.Tasks;
 
 namespace CSA.Common
 {
-    public class RegistrySettings
+    public class GmailRegistrySettings
     {
-        public RegistrySettings()
+        public GmailRegistrySettings()
         {
-            csaKey = Microsoft.Win32.Registry.LocalMachine.CreateSubKey("Software\\Nemanja\\CounterStrikeAlerter");
+            CsaKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("Software\\Nemanja\\CounterStrikeAlerter");
         }
 
-        Microsoft.Win32.RegistryKey csaKey;
+        Microsoft.Win32.RegistryKey CsaKey;
 
         public string GMailUser
         {
-            get { return (string)csaKey.GetValue(nameof(GMailUser)); }
-            set { csaKey.SetValue(nameof(GMailUser), value); }
+            get
+            {
+                return (string)CsaKey.GetValue(nameof(GMailUser));
+            }
+            set
+            {
+                CsaKey.SetValue(nameof(GMailUser), value);
+            }
         }
 
+        /// <summary>
+        /// Encrypted password.
+        /// </summary>
         public string GMailPass
         {
             get
             {
-                string encryptedPass = (string)csaKey.GetValue(nameof(GMailPass));
-                if (!string.IsNullOrEmpty(encryptedPass))
-                    return (encryptedPass.Decrypt());
-                else
-                    return null;
+                return (string)CsaKey.GetValue(nameof(GMailPass)); ;
             }
-            set { csaKey.SetValue(nameof(GMailPass), value.Encrypt()); }
+            set
+            {
+                CsaKey.SetValue(nameof(GMailPass), value);
+            }
         }
 
         public string Addresses
@@ -39,24 +47,27 @@ namespace CSA.Common
             get
             {
                 string res = string.Empty;
-                object val = csaKey.GetValue(nameof(Addresses));
+                object val = CsaKey.GetValue(nameof(Addresses));
                 if (val != null)
                     res = (string)val;
                 return res;
             }
-            set { csaKey.SetValue(nameof(Addresses), value); }
+            set
+            {
+                CsaKey.SetValue(nameof(Addresses), value);
+            }
         }
 
         public List<string> AddressesList()
         {
-            return Addresses.Split(new char[] { ';'}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            return Addresses.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
         public bool SendEmailActive
         {
             get
             {
-                var value = csaKey.GetValue(nameof(SendEmailActive));
+                var value = CsaKey.GetValue(nameof(SendEmailActive));
                 bool res = false;
                 if (value != null)
                 {
@@ -68,7 +79,7 @@ namespace CSA.Common
             }
             set
             {
-                csaKey.SetValue(nameof(SendEmailActive), value);
+                CsaKey.SetValue(nameof(SendEmailActive), value);
             }
         }
 

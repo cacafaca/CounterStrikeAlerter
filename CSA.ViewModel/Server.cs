@@ -65,7 +65,7 @@ namespace CSA.ViewModel
 
         public bool QueryServerHeader()
         {
-            System.Diagnostics.Debug.WriteLine("Start quering server header.", "QueryServerHeader()");
+            Common.Logger.TraceWriteLine("Start quering server header.", "QueryServerHeader()");
 
             byte[] basicInfo = null;
             AskServer(Request.ServerInfo, out basicInfo);
@@ -78,7 +78,7 @@ namespace CSA.ViewModel
             Map = _ServerModel.Map;
             CurrentPlayers = string.Format("{0}/{1}", _ServerModel.ActualPlayers, _ServerModel.MaxPlayers);
 
-            System.Diagnostics.Debug.WriteLine("Finished quering server header. Info: " + _ServerModel.ToString(), "QueryServerHeader()");
+            Common.Logger.TraceWriteLine("Finished quering server header. Info: " + _ServerModel.ToString(), "QueryServerHeader()");
 
             return true;
         }
@@ -93,7 +93,6 @@ namespace CSA.ViewModel
                 {
                     _ServerModel = new Model.SourceServer(Address, Port);
                     _ServerModel.Header = Model.Header.Source;
-                    //_ServerModel.Players.CollectionChanged += ServerModelPlayers_CollectionChanged;
                     ParseBasicInfoForSource(response);
                 }
                 else if (engineIndicator == (byte)Model.Header.GoldSource)
@@ -208,7 +207,7 @@ namespace CSA.ViewModel
 
         public bool QueryPlayers()
         {
-            System.Diagnostics.Debug.WriteLine("Start quering players.", "QueryPlayers()");
+            Common.Logger.TraceWriteLine("Start quering players.", "QueryPlayers()");
 
             bool headerWasRead = _ServerModel != null;
             if (!headerWasRead)
@@ -222,7 +221,7 @@ namespace CSA.ViewModel
                 AskServer(Request.PlayerInfoChallenge, out challenge);
                 if (challenge == null)
                 {
-                    System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
+                    Common.Logger.TraceWriteLine("Finish quering players.", "QueryPlayers()");
                     return false;
                 }
                 Response response = new Response(challenge);
@@ -232,18 +231,18 @@ namespace CSA.ViewModel
                 AskServer(Request.GetPlayersRequest(response.GetChallenge()), out playerInfo);
                 if (playerInfo == null)
                 {
-                    System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
+                    Common.Logger.TraceWriteLine("Finish quering players.", "QueryPlayers()");
                     return false;
                 }
                 response = new Response(playerInfo);
                 ParsePlayersInfo(response);
                 RaisePropertyChanged(nameof(Players));
-                System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
+                Common.Logger.TraceWriteLine("Finish quering players.", "QueryPlayers()");
                 return true;
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("Finish quering players.", "QueryPlayers()");
+                Common.Logger.TraceWriteLine("Finish quering players.", "QueryPlayers()");
                 return false;
             }
         }
@@ -279,7 +278,7 @@ namespace CSA.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("AskServer: " + ex.Message);
+                    Common.Logger.TraceWriteLine("AskServer: " + ex.Message);
                 }
             }
         }

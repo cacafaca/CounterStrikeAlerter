@@ -12,7 +12,7 @@ namespace CSA.Common
         /// <summary>
         /// Specifies the data protection scope of the DPAPI.
         /// </summary>
-        private const DataProtectionScope Scope = DataProtectionScope.CurrentUser;
+        private const DataProtectionScope Scope = DataProtectionScope.LocalMachine;
 
         public static string Encrypt(this string text)
         {

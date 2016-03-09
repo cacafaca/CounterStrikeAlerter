@@ -14,35 +14,30 @@ namespace CSA.ViewModel
         {
         }
 
-        public SendMail(string user, string encriptedPassword)
+        public SendMail(string gmailUser, string gmailEncriptedPassword)
         {
-            User = user;
-            EncryptedPassword = encriptedPassword;
+            GmailUser = gmailUser;
+            GmailEncryptedPassword = gmailEncriptedPassword;
         }
 
-        private string User;
-        private string Password;
-        private string EncryptedPassword;
+        private string GmailUser;
+        private string GmailEncryptedPassword;
 
 
         private void ReadUserAndPasswordFromRegistry()
         {
-            System.Diagnostics.Debug.WriteLine("Read registry.");
-            RegistrySettings regSet = new RegistrySettings();
-            User = regSet.GMailUser;
-            Password = regSet.GMailPass;
+            Common.Logger.TraceWriteLine("Read registry.");
+            GmailRegistrySettings regSet = new GmailRegistrySettings();
+            GmailUser = regSet.GMailUser;
+            GmailEncryptedPassword = regSet.GMailPass;
         }
 
         public void Send(string to, string subject, string body)
         {
-            System.Net.NetworkCredential credential;
-            if (string.IsNullOrEmpty(EncryptedPassword))
-            {
+            if (string.IsNullOrEmpty(GmailUser) || string.IsNullOrEmpty(GmailEncryptedPassword))
                 ReadUserAndPasswordFromRegistry();
-                credential = new System.Net.NetworkCredential(User, Password);
-            }
-            else
-                credential = new System.Net.NetworkCredential(User, EncryptedPassword.Decrypt());
+            System.Net.NetworkCredential credential;
+            credential = new System.Net.NetworkCredential(GmailUser, GmailEncryptedPassword.Decrypt());
 
             CSA.Common.SendMail sm = new Common.SendMail("smtp.gmail.com", 587, credential);
             sm.Send(to, subject, body);

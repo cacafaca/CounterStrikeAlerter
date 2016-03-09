@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="EndRoundReporterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReporterServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSA.Reporter\CSA.Reporter.csproj">

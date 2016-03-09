@@ -87,8 +87,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="EmailSettings.config">
+    <None Include="GmailSettings.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -96,6 +97,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CSA.Common\CSA.Common.csproj">
+      <Project>{dc5ba645-313c-4d49-9ac2-75b8ac5eb274}</Project>
+      <Name>CSA.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CSA.Model\CSA.Model.csproj">
       <Project>{5e853511-cae0-4623-9aa3-2524c93b9df5}</Project>
       <Name>CSA.Model</Name>

@@ -24,7 +24,8 @@ namespace CSA.Reporter
         {
             CanWork = false;
             Server = new ViewModel.Server("192.168.0.147:27015");
-            LoadGmailSettingsFromConfig();
+            GmailSettings = new GmailSettings();
+            GmailSettings.Load();
 
             EndRoundWorker = new BackgroundWorker();
             EndRoundWorker.DoWork += ListenEndRound;
@@ -47,7 +48,7 @@ namespace CSA.Reporter
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    Common.Logger.TraceWriteLine(ex.Message);
                 }
 
                 Sleep();
@@ -66,23 +67,14 @@ namespace CSA.Reporter
             System.Threading.Thread.Sleep(Properties.Settings.Default.QueryServerSeconds * 1000);
         }
 
-
-        private string GmailUser;
-        private string EncryptedPassword;
-
-        private void LoadGmailSettingsFromConfig()
-        {
-            ExeConfigurationFileMap configMap = new ExeConfigurationFileMap();
-            configMap.ExeConfigFilename = @".\EmailSettings.config";
-            Configuration config = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
-
-        }
+        GmailSettings GmailSettings;
 
         private void ReportEndRoundStats(Model.BaseServer server)
         {
-            CSA.ViewModel.SendMail sendMail = new ViewModel.SendMail();
+            CSA.ViewModel.SendMail sendMail = new ViewModel.SendMail(GmailSettings.GmailUser, GmailSettings.GmailEncryptedPassword);
             string to = "nemanja.simovic@brezna.info";
-            string subject = string.Format("Statistic for server {0} at {1} on map {2}", server.Name, server.AddressAndPort(), server.Map);
+            string subject = string.Format("Statistic for server {0} at {1} on map {2} at the time {3} {4}", server.Name, server.AddressAndPort(), 
+                server.Map, DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString() );
             string body = GenerateBody(server);
             sendMail.Send(to, subject, body);
         }

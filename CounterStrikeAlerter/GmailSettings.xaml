@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CounterStrikeAlerter"
         mc:Ignorable="d"
-        Title="Gmail settings" Height="291.292" Width="300" SizeToContent="Height">
+        Title="Gmail settings" Height="291.292" Width="300" SizeToContent="Height" Loaded="Window_Loaded">
     <Window.DataContext>
         <local:MainViewModel/>
     </Window.DataContext>
@@ -15,7 +15,7 @@
             <Label x:Name="fromEmailAddressLabel" Content="email address"/>
             <TextBox x:Name="fromEmailAddress" Height="23" TextWrapping="Wrap" Text="{Binding GmailSettings.GMailUser}"/>
             <Label x:Name="passwordLabel" Content="password"/>
-            <PasswordBox x:Name="password" Height="23" />
+            <PasswordBox x:Name="password" Height="23" PasswordChanged="password_PasswordChanged" />
             <Label x:Name="toEmailAddressesLabel" Content="email addresses (separated bz ;)"/>
             <TextBox x:Name="toEmailAddresses" Height="107" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Text="{Binding GmailSettings.Addresses}"/>
             <Button x:Name="closeButton" Content="Close" Click="closeButton_Click"/>

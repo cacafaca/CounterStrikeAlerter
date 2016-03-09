@@ -33,12 +33,12 @@ namespace CSA.Common
             message.IsBodyHtml = true;
             try
             {
-                System.Diagnostics.Debug.WriteLine("Sending message."); 
+                Common.Logger.TraceWriteLine("Sending message."); 
                 Client.Send(message);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Can't send mail: " + ex.Message);
+                Common.Logger.TraceWriteLine("Can't send mail: " + ex.Message);
             }
         }
     }

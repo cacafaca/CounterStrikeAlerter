@@ -20,7 +20,7 @@ namespace CSA.ViewModel
                 MonitorSleepInterval = DefaultMonitorSleepInterval;
             _Server = server;
             _PlayersChange = new ObservableCollection<Player>();
-            RegistrySettings = new RegistrySettings();
+            RegistrySettings = new GmailRegistrySettings();
             MonitorWorker = new BackgroundWorker();
             MonitorWorker.DoWork += MonitorWorker_DoWork;
         }
@@ -116,7 +116,7 @@ namespace CSA.ViewModel
             }
         }
 
-        RegistrySettings RegistrySettings;
+        GmailRegistrySettings RegistrySettings;
 
         public void RefreshPlayers()
         {
@@ -164,7 +164,7 @@ namespace CSA.ViewModel
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message, "GetPlayersChange()");
+                Common.Logger.TraceWriteLine(ex.Message, "GetPlayersChange()");
             }
 
             return playersChanged;

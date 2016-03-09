@@ -25,7 +25,7 @@ namespace CSA.Reporter.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
         public int QueryServerSeconds {
             get {
                 return ((int)(this["QueryServerSeconds"]));

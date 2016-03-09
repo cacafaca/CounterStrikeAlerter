@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataProtectionApiWrapper.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="RegistrySettings.cs" />
     <Compile Include="SendMail.cs" />
     <Compile Include="Util.cs" />

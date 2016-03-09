@@ -15,12 +15,17 @@ namespace CSA.Reporter
         public ReporterService()
         {
             InitializeComponent();
+            Common.Logger.TraceWriteLine("After InitializeComponent().");
+            System.Threading.Thread.Sleep(10000);
+            Common.Logger.TraceWriteLine("new EndRoundReporter();.");
             EndRoundReporter = new EndRoundReporter();
         }
 
         protected override void OnStart(string[] args)
         {
-            System.Threading.Thread.Sleep(1000);
+            //System.Threading.Thread.Sleep(30000);
+            //if(EndRoundReporter == null)
+                
             EndRoundReporter.Start();
         }
 

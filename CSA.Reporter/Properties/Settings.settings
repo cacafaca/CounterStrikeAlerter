@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="QueryServerSeconds" Type="System.Int32" Scope="Application">
-      <Value Profile="(Default)">5</Value>
+      <Value Profile="(Default)">3</Value>
     </Setting>
   </Settings>
 </SettingsFile>

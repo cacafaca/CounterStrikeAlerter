@@ -9,10 +9,10 @@ namespace CSA.ViewModel
 {
     public class GmailSettings : BaseViewModel, INotifyPropertyChanged
     {
-        protected Common.RegistrySettings RegistrySettinga;
+        protected Common.GmailRegistrySettings RegistrySettinga;
         public GmailSettings()
         {
-            RegistrySettinga = new Common.RegistrySettings();
+            RegistrySettinga = new Common.GmailRegistrySettings();
         }
 
         public string GMailUser
@@ -25,9 +25,15 @@ namespace CSA.ViewModel
             }
         }
 
+        /// <summary>
+        /// This property contains encrypted password.
+        /// </summary>
         public string GMailPass
         {
-            get { return RegistrySettinga.GMailPass; }
+            get
+            {
+                return RegistrySettinga.GMailPass;
+            }
             set
             {
                 RegistrySettinga.GMailPass = value;
@@ -50,7 +56,10 @@ namespace CSA.ViewModel
 
         public bool SendEmailActive
         {
-            get { return RegistrySettinga.SendEmailActive; }
+            get
+            {
+                return RegistrySettinga.SendEmailActive;
+            }
             set
             {
                 RegistrySettinga.SendEmailActive = value;
