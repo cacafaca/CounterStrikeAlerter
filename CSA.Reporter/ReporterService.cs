@@ -23,9 +23,6 @@ namespace CSA.Reporter
 
         protected override void OnStart(string[] args)
         {
-            //System.Threading.Thread.Sleep(30000);
-            //if(EndRoundReporter == null)
-                
             EndRoundReporter.Start();
         }
 

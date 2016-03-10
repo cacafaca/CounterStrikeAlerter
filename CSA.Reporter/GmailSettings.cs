@@ -41,19 +41,19 @@ namespace CSA.Reporter
             }
         }
 
-        [ConfigurationProperty("GmailEncryptedPassword",
-        DefaultValue = "Replace Gmail encrypted password here.",
+        [ConfigurationProperty("SendToAddresses",
+        DefaultValue = "user1@domain.com;user2@domain.com",
         IsRequired = true,
         IsKey = true)]
         public string SendToAddresses
         {
             get
             {
-                return (string)this[nameof(GmailEncryptedPassword)];
+                return (string)this[nameof(SendToAddresses)];
             }
             set
             {
-                this[nameof(GmailEncryptedPassword)] = value;
+                this[nameof(SendToAddresses)] = value;
             }
         }
 
@@ -76,6 +76,7 @@ namespace CSA.Reporter
                 Common.Logger.TraceWriteLine(this.GetType().FullName + "> GetSection: GmailUser=" + gmailSettings.GmailUser + "GmailPass=" + gmailSettings.GmailEncryptedPassword);
                 GmailUser = gmailSettings.GmailUser;
                 GmailEncryptedPassword = gmailSettings.GmailEncryptedPassword;
+                SendToAddresses = gmailSettings.SendToAddresses;
             }
             catch (Exception ex)
             {
@@ -90,5 +91,11 @@ namespace CSA.Reporter
             config.Sections.Add(GetType().Name, this);
             config.Save(ConfigurationSaveMode.Full, true);
         }
+
+        public List<string> SendToAddressesList()
+        {
+            return SendToAddresses.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
+
     }
 }
