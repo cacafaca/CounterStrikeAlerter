@@ -8,5 +8,8 @@
     <Setting Name="CounterStrikeServerAndPort" Type="System.String" Scope="User">
       <Value Profile="(Default)">192.168.10.12:27015</Value>
     </Setting>
+    <Setting Name="PlayersResetedScoreRateMin" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">25</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

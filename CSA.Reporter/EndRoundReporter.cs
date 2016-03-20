@@ -200,7 +200,7 @@ namespace CSA.Reporter
                 //Common.Logger.TraceWriteLine("samePlayersWithResetedScore = " + samePlayersWithResetedScore.ToString());
                 double newPlayersResetedScoreRate = (double)samePlayersWithResetedScore / (double)samePlayersCount * 100D;
                 Common.Logger.TraceWriteLine("New Players Reseted Score Rate = " + newPlayersResetedScoreRate.ToString("N"));
-                bool newRound = newPlayersResetedScoreRate >= 50;
+                bool newRound = newPlayersResetedScoreRate >= Properties.Settings.Default.PlayersResetedScoreRateMin;
                 return newRound;
             }
             else
