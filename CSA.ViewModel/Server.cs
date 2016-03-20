@@ -256,7 +256,7 @@ namespace CSA.ViewModel
             {
                 try
                 {
-                    var x = SocketUDP.SendTo(request, EndPoint);
+                    SocketUDP.SendTo(request, EndPoint);
 
                     int count = 0;
                     var receiveEndPoint = EndPoint as EndPoint;
@@ -266,14 +266,14 @@ namespace CSA.ViewModel
                         System.Threading.Thread.Sleep(100); // Wait for an answer.
                         retry++;
                     }
-                    if (SocketUDP.Available > 0)
+                    while (SocketUDP.Available > 0)
                     {
                         response = new byte[SocketUDP.Available];
                         count = SocketUDP.ReceiveFrom(response, ref receiveEndPoint);
-                        if (SocketUDP.Available > 0)
-                        {
-                            throw new Exception("More to read.");
-                        }
+                        //if (SocketUDP.Available > 0)
+                        //{
+                        //    throw new Exception("More to read.");
+                        //}
                     }
                 }
                 catch (Exception ex)

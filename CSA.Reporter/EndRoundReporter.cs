@@ -34,11 +34,27 @@ namespace CSA.Reporter
 
         private void ListenEndRound(object sender, DoWorkEventArgs e)
         {
-            Server.QueryServer();
-            Model.BaseServer oldServer = Server.ServerModel.Copy();
+            Model.BaseServer oldServer = null;
+            int failCount = 0;
+            while (failCount < 3)
+            {
+                try
+                {
+                    Server.QueryServer();
+                    oldServer = Server.ServerModel.Copy();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Common.Logger.TraceWriteLine(ex.Message, ex.GetType().Name);
+                    failCount++;
+                }
+            }
             List<Model.Player> allTimePlayers = new List<Model.Player>();
             UpdatePlayersStats(allTimePlayers, Server.ServerModel.Players);
+
             Sleep();
+
             while (CanWork)
             {
                 try
@@ -113,7 +129,7 @@ namespace CSA.Reporter
                         sendMail.Send(address, subject, body);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Common.Logger.TraceWriteLine(ex.Message, ex.GetType().Name);
                 }
@@ -166,7 +182,10 @@ namespace CSA.Reporter
                 return false;
 
             if (oldServer.Map != newServer.Map)
+            {
+                Common.Logger.TraceWriteLine("New round!! Map changed."); 
                 return true;
+            }
 
             var samePlayers = newServer.Players.Join(
                 oldServer.Players,

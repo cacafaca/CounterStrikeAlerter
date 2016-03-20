@@ -35,8 +35,9 @@ namespace CSA.Common
 
         public static string GetAppPath()
         {
-            return System.IO.Path.GetDirectoryName(
-                AppDomain.CurrentDomain.BaseDirectory);
+            //return System.IO.Path.GetDirectoryName(
+            //    AppDomain.CurrentDomain.BaseDirectory);
+            return AppDomain.CurrentDomain.BaseDirectory;
         }
     }
 }

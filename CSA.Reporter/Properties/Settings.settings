@@ -6,7 +6,7 @@
       <Value Profile="(Default)">3</Value>
     </Setting>
     <Setting Name="CounterStrikeServerAndPort" Type="System.String" Scope="User">
-      <Value Profile="(Default)">193.104.68.49:27040</Value>
+      <Value Profile="(Default)">192.168.10.12:27015</Value>
     </Setting>
   </Settings>
 </SettingsFile>
