@@ -42,7 +42,7 @@ namespace CSA.Reporter
         }
 
         [ConfigurationProperty("SendToAddresses",
-        DefaultValue = "user1@domain.com;user2@domain.com",
+        DefaultValue = "Replace receivers addresses here separated by semicolon. Eg. user1@domain1.com;user2@domain2.com",
         IsRequired = true,
         IsKey = true)]
         public string SendToAddresses
