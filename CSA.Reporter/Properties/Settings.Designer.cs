@@ -31,5 +31,17 @@ namespace CSA.Reporter.Properties {
                 return ((int)(this["QueryServerSeconds"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("193.104.68.49:27040")]
+        public string CounterStrikeServerAndPort {
+            get {
+                return ((string)(this["CounterStrikeServerAndPort"]));
+            }
+            set {
+                this["CounterStrikeServerAndPort"] = value;
+            }
+        }
     }
 }

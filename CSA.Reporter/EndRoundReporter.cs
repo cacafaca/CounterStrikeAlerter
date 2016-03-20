@@ -24,7 +24,7 @@ namespace CSA.Reporter
         public EndRoundReporter()
         {
             CanWork = false;
-            Server = new ViewModel.Server("192.168.0.147:27015");
+            Server = new ViewModel.Server(Properties.Settings.Default.CounterStrikeServerAndPort);
             GmailSettings = new GmailSettings();
             GmailSettings.Load();
 
@@ -44,17 +44,21 @@ namespace CSA.Reporter
                 try
                 {
                     Server.QueryServer();
-                    UpdatePlayersStats(allTimePlayers, Server.ServerModel.Players);
+                    if (oldServer.Map == Server.Map)
+                        UpdatePlayersStats(allTimePlayers, Server.ServerModel.Players);
                     if (IsNewRound(oldServer, Server.ServerModel))
                     {
                         ReportEndRoundStats(oldServer, allTimePlayers);
                         allTimePlayers.Clear();
                     }
-                    oldServer = Server.ServerModel.Copy();
                 }
                 catch (Exception ex)
                 {
                     Common.Logger.TraceWriteLine(ex.Message);
+                }
+                finally
+                {
+                    oldServer = Server.ServerModel.Copy();
                 }
 
                 Sleep();
@@ -68,16 +72,21 @@ namespace CSA.Reporter
 
         private void UpdatePlayersStats(List<Model.Player> allTimePlayers, IEnumerable<Model.Player> newPlayers)
         {
-            // Update existing players
-            foreach (var player in allTimePlayers.Intersect(newPlayers, new PlayerComparer()))
+            if (newPlayers != null && newPlayers.Count() > 0)
             {
-                int newScore = newPlayers.Where(newPlayer => newPlayer.Name == player.Name).First().Score;
-                if (newScore > 0 && newScore > player.Score)
-                    player.Score = newScore;
-            }
+                // Update existing players
+                foreach (var player in allTimePlayers.Join(newPlayers,
+                    allTimePlayer => new { Name = allTimePlayer.Name },
+                    newPlayer => new { Name = newPlayer.Name },
+                    (allTimePlayer, newPlayer) => new { Name = allTimePlayer.Name, OldScore = allTimePlayer.Score, NewScore = newPlayer.Score })
+                    .Where(player => player.NewScore > player.OldScore))
+                {
+                    allTimePlayers.Where(allTimePlayer => allTimePlayer.Name == player.Name).First().Score = player.NewScore;
+                }
 
-            // Add new players
-            allTimePlayers.AddRange(newPlayers.Except(allTimePlayers, new PlayerComparer()));
+                // Add new players
+                allTimePlayers.AddRange(newPlayers.Except(allTimePlayers, new PlayerComparer()));
+            }
         }
 
         public bool CancellationPending { get { return EndRoundWorker.CancellationPending; } }
@@ -93,13 +102,20 @@ namespace CSA.Reporter
         {
             if (allTimePlayers != null && allTimePlayers.Count > 0)
             {
-                CSA.ViewModel.SendMail sendMail = new ViewModel.SendMail(GmailSettings.GmailUser, GmailSettings.GmailEncryptedPassword);
-                string subject = string.Format("Statistic for server {0} at {1} on map {2} at the time {3} {4}", server.Name, server.AddressAndPort(),
-                    server.Map, DateTime.Now.ToShortDateString(), DateTime.Now.ToLongTimeString());
-                string body = GenerateBody(server, allTimePlayers);
-                foreach (var address in GmailSettings.SendToAddressesList())
+                try
                 {
-                    sendMail.Send(address, subject, body);
+                    CSA.ViewModel.SendMail sendMail = new ViewModel.SendMail(GmailSettings.GmailUser, GmailSettings.GmailEncryptedPassword);
+                    string subject = string.Format("Statistic for server {0} at {1} on map {2} at the time {3} {4}", server.Name, server.AddressAndPort(),
+                        server.Map, DateTime.Now.ToShortDateString(), DateTime.Now.ToLongTimeString());
+                    string body = GenerateBody(server, allTimePlayers);
+                    foreach (var address in GmailSettings.SendToAddressesList())
+                    {
+                        sendMail.Send(address, subject, body);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Common.Logger.TraceWriteLine(ex.Message, ex.GetType().Name);
                 }
             }
         }
@@ -161,10 +177,10 @@ namespace CSA.Reporter
             int samePlayersCount = samePlayers.Count();
             if (samePlayersCount > 0)
             {
-                int samePlayersWithResetedScore = samePlayers.Where(player => (player.NewScore - player.OldScore < 0) || (player.NewScore == 0 && player.OldScore > 0)).Count();
-                Common.Logger.TraceWriteLine("samePlayersWithResetedScore = " + samePlayersWithResetedScore.ToString());
+                int samePlayersWithResetedScore = samePlayers.Where(player => player.NewScore - player.OldScore < 0).Count();
+                //Common.Logger.TraceWriteLine("samePlayersWithResetedScore = " + samePlayersWithResetedScore.ToString());
                 double newPlayersResetedScoreRate = (double)samePlayersWithResetedScore / (double)samePlayersCount * 100D;
-                Common.Logger.TraceWriteLine("newPlayersResetedScoreRate = " + newPlayersResetedScoreRate.ToString("N"));
+                Common.Logger.TraceWriteLine("New Players Reseted Score Rate = " + newPlayersResetedScoreRate.ToString("N"));
                 bool newRound = newPlayersResetedScoreRate >= 50;
                 return newRound;
             }
