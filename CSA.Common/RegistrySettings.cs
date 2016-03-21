@@ -38,7 +38,10 @@ namespace CSA.Common
             }
             set
             {
-                CsaKey.SetValue(nameof(GMailPass), value);
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    CsaKey.SetValue(nameof(GMailPass), value);
+                }
             }
         }
 

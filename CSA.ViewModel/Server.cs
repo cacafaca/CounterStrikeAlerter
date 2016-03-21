@@ -65,7 +65,7 @@ namespace CSA.ViewModel
 
         public bool QueryServerHeader()
         {
-            Common.Logger.TraceWriteLine("Start quering server header.", "QueryServerHeader()");
+            Common.Logger.TraceWriteLine("Start querying server header at " + AddressAndPort(), "QueryServerHeader()");
 
             byte[] basicInfo = null;
             AskServer(Request.ServerInfo, out basicInfo);
@@ -207,7 +207,7 @@ namespace CSA.ViewModel
 
         public bool QueryPlayers()
         {
-            Common.Logger.TraceWriteLine("Start quering players.", "QueryPlayers()");
+            Common.Logger.TraceWriteLine("Start quering players at " + AddressAndPort(), "QueryPlayers()");
 
             bool headerWasRead = _ServerModel != null;
             if (!headerWasRead)
@@ -248,6 +248,8 @@ namespace CSA.ViewModel
         }
 
         Request Request = new Request();
+        int RetrySleepInterval = 100;
+        int MaxRetries = 3;
 
         private void AskServer(byte[] request, out byte[] response)
         {
@@ -261,20 +263,24 @@ namespace CSA.ViewModel
                     int count = 0;
                     var receiveEndPoint = EndPoint as EndPoint;
                     int retry = 0;
-                    while (SocketUDP.Available == 0 && retry < 3)
+                    while(SocketUDP.Available == 0 && retry < MaxRetries)
                     {
-                        System.Threading.Thread.Sleep(100); // Wait for an answer.
                         retry++;
+                        Common.Logger.TraceWriteLine(string.Format("Server at {0} didn't respond. Wait for {1}ms. Retry {2}.", 
+                            AddressAndPort(), RetrySleepInterval, retry), "AskServer()");
+                        System.Threading.Thread.Sleep(RetrySleepInterval); // Wait for an answer.
                     }
-                    while (SocketUDP.Available > 0)
+                    if (SocketUDP.Available == 0 )
                     {
-                        response = new byte[SocketUDP.Available];
-                        count = SocketUDP.ReceiveFrom(response, ref receiveEndPoint);
-                        //if (SocketUDP.Available > 0)
-                        //{
-                        //    throw new Exception("More to read.");
-                        //}
+                        Common.Logger.TraceWriteLine(string.Format("Server at {0} didn't respond after {1} retries.", AddressAndPort(),
+                            MaxRetries), "AskServer()");
                     }
+                    else
+                        while (SocketUDP.Available > 0)
+                        {
+                            response = new byte[SocketUDP.Available];
+                            count = SocketUDP.ReceiveFrom(response, ref receiveEndPoint);
+                        }
                 }
                 catch (Exception ex)
                 {
@@ -348,6 +354,10 @@ namespace CSA.ViewModel
             }
         }
 
+        public string AddressAndPort()
+        {
+            return Address + ":" + Port.ToString();
+        }
     }
 
 }

@@ -35,46 +35,24 @@ namespace CSA.Reporter
         private void ListenEndRound(object sender, DoWorkEventArgs e)
         {
             Model.BaseServer oldServer = null;
-            int failCount = 0;
-            while (failCount < 3)
-            {
-                try
-                {
-                    Server.QueryServer();
-                    oldServer = Server.ServerModel.Copy();
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    Common.Logger.TraceWriteLine(ex.Message, ex.GetType().Name);
-                    failCount++;
-                }
-            }
-            List<Model.Player> allTimePlayers = new List<Model.Player>();
-            UpdatePlayersStats(allTimePlayers, Server.ServerModel.Players);
-
-            Sleep();
+            List<Model.Player> roundTimePlayers = new List<Model.Player>();
 
             while (CanWork)
             {
                 try
                 {
                     Server.QueryServer();
-                    if (oldServer.Map == Server.Map)
-                        UpdatePlayersStats(allTimePlayers, Server.ServerModel.Players);
-                    if (IsNewRound(oldServer, Server.ServerModel))
+                    if (oldServer != null && IsNewRound(oldServer, Server.ServerModel))
                     {
-                        ReportEndRoundStats(oldServer, allTimePlayers);
-                        allTimePlayers.Clear();
+                        ReportEndRoundStats(oldServer, roundTimePlayers);
+                        roundTimePlayers.Clear();
                     }
+                    UpdatePlayersStats(roundTimePlayers, Server.ServerModel.Players);
+                    oldServer = Server.ServerModel.Copy();
                 }
                 catch (Exception ex)
                 {
                     Common.Logger.TraceWriteLine(ex.Message);
-                }
-                finally
-                {
-                    oldServer = Server.ServerModel.Copy();
                 }
 
                 Sleep();
