@@ -34,7 +34,7 @@ namespace CSA.Reporter.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("192.168.10.12:27015")]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.10.13:27015")]
         public string CounterStrikeServerAndPort {
             get {
                 return ((string)(this["CounterStrikeServerAndPort"]));

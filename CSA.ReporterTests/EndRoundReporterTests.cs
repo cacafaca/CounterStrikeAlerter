@@ -11,6 +11,9 @@ namespace CSA.Reporter.Tests
     [TestClass()]
     public class EndRoundReporterTests
     {
+        /// <summary>
+        /// This test method is for debuging.
+        /// </summary>
         [TestMethod()]
         public void StartTest()
         {

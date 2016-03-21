@@ -69,7 +69,7 @@ namespace CSA.ViewModel
 
             byte[] basicInfo = null;
             AskServer(Request.ServerInfo, out basicInfo);
-            if (basicInfo == null)
+            if (basicInfo == null || basicInfo.Length < 4)
                 return false;
             Response response = new Response(basicInfo);
             ParseBasicInfo(response);
@@ -282,12 +282,19 @@ namespace CSA.ViewModel
                             count = SocketUDP.ReceiveFrom(response, ref receiveEndPoint);
                         }
                 }
+                catch(SocketException ex)
+                {
+                    LastSocketException = ex;
+                    Common.Logger.TraceWriteLine(string.Format("AskServer: {0}. SocketErrorCode: {1}", ex.Message, ex.SocketErrorCode.ToString()));
+                }
                 catch (Exception ex)
                 {
                     Common.Logger.TraceWriteLine("AskServer: " + ex.Message);
                 }
             }
         }
+
+        public SocketException LastSocketException { get; private set; }
 
         public bool QueryServer()
         {

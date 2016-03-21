@@ -36,26 +36,45 @@ namespace CSA.Reporter
         {
             Model.BaseServer oldServer = null;
             List<Model.Player> roundTimePlayers = new List<Model.Player>();
+            int retriesQueryingServer = 0;
 
             while (CanWork)
             {
                 try
                 {
-                    Server.QueryServer();
-                    if (oldServer != null && IsNewRound(oldServer, Server.ServerModel))
+                    if (Server.QueryServer())
                     {
-                        ReportEndRoundStats(oldServer, roundTimePlayers);
-                        roundTimePlayers.Clear();
+                        retriesQueryingServer = 0;
+                        if (oldServer != null && IsNewRound(oldServer, Server.ServerModel))
+                        {
+                            ReportEndRoundStats(oldServer, roundTimePlayers);
+                            roundTimePlayers.Clear();
+                        }
+                        UpdatePlayersStats(roundTimePlayers, Server.ServerModel.Players);
+                        oldServer = Server.ServerModel.Copy();
                     }
-                    UpdatePlayersStats(roundTimePlayers, Server.ServerModel.Players);
-                    oldServer = Server.ServerModel.Copy();
+                    else
+                    {
+                        if (retriesQueryingServer <= 10)
+                            retriesQueryingServer++;
+                        else if (oldServer != null && roundTimePlayers.Count > 0)
+                        {
+                            ReportEndRoundStats(oldServer, roundTimePlayers);
+                            roundTimePlayers.Clear();
+                        }
+                        Common.Logger.TraceWriteLine("Can't query server at " + Server.AddressAndPort());
+                    }
                 }
                 catch (Exception ex)
                 {
                     Common.Logger.TraceWriteLine(ex.Message);
                 }
 
-                Sleep();
+                if (retriesQueryingServer <= 10) // After 10 retries sleep longer because server is probably down.
+                    Sleep();
+                else
+                    Sleep10();
+
                 if (EndRoundWorker.CancellationPending)
                 {
                     e.Cancel = true;
@@ -88,6 +107,11 @@ namespace CSA.Reporter
         private void Sleep()
         {
             System.Threading.Thread.Sleep(Properties.Settings.Default.QueryServerSeconds * 1000);
+        }
+
+        private void Sleep10()
+        {
+            System.Threading.Thread.Sleep(Properties.Settings.Default.QueryServerSeconds * 10 * 1000);
         }
 
         GmailSettings GmailSettings;
@@ -161,7 +185,7 @@ namespace CSA.Reporter
 
             if (oldServer.Map != newServer.Map)
             {
-                Common.Logger.TraceWriteLine("New round!! Map changed."); 
+                Common.Logger.TraceWriteLine("New round!! Map changed.");
                 return true;
             }
 
@@ -179,6 +203,8 @@ namespace CSA.Reporter
                 double newPlayersResetedScoreRate = (double)samePlayersWithResetedScore / (double)samePlayersCount * 100D;
                 Common.Logger.TraceWriteLine("New Players Reseted Score Rate = " + newPlayersResetedScoreRate.ToString("N"));
                 bool newRound = newPlayersResetedScoreRate >= Properties.Settings.Default.PlayersResetedScoreRateMin;
+                if (newRound)
+                    Common.Logger.TraceWriteLine("New round!! Round restarted.");
                 return newRound;
             }
             else
