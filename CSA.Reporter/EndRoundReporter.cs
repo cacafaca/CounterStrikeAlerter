@@ -37,6 +37,7 @@ namespace CSA.Reporter
             Model.BaseServer oldServer = null;
             List<Model.Player> roundTimePlayers = new List<Model.Player>();
             int retriesQueryingServer = 0;
+            const int maxRetries = 10;
 
             while (CanWork)
             {
@@ -49,13 +50,18 @@ namespace CSA.Reporter
                         {
                             ReportEndRoundStats(oldServer, roundTimePlayers);
                             roundTimePlayers.Clear();
+                            oldServer = null;
+                            retriesQueryingServer = maxRetries + 1; // Sleep longer to avoid mixing with previous round.
                         }
-                        UpdatePlayersStats(roundTimePlayers, Server.ServerModel.Players);
-                        oldServer = Server.ServerModel.Copy();
+                        else
+                        {
+                            UpdatePlayersStats(roundTimePlayers, Server.ServerModel.Players);
+                            oldServer = Server.ServerModel.Copy();
+                        }
                     }
                     else
                     {
-                        if (retriesQueryingServer <= 10)
+                        if (retriesQueryingServer <= maxRetries)
                             retriesQueryingServer++;
                         else if (oldServer != null && roundTimePlayers.Count > 0)
                         {
@@ -70,7 +76,7 @@ namespace CSA.Reporter
                     Common.Logger.TraceWriteLine(ex.Message);
                 }
 
-                if (retriesQueryingServer <= 10) // After 10 retries sleep longer because server is probably down.
+                if (retriesQueryingServer <= maxRetries) // After max retries sleep longer because server is probably down.
                     Sleep();
                 else
                     Sleep10();
@@ -116,16 +122,17 @@ namespace CSA.Reporter
 
         GmailSettings GmailSettings;
 
-        private void ReportEndRoundStats(Model.BaseServer server, List<Model.Player> allTimePlayers)
+        private void ReportEndRoundStats(Model.BaseServer server, List<Model.Player> roundTimePlayers)
         {
-            if (allTimePlayers != null && allTimePlayers.Count > 0)
+            if (roundTimePlayers != null && roundTimePlayers.Count > 0 && 
+                roundTimePlayers.Count != roundTimePlayers.Where(player => player.Score == 0).Count())
             {
                 try
                 {
                     CSA.ViewModel.SendMail sendMail = new ViewModel.SendMail(GmailSettings.GmailUser, GmailSettings.GmailEncryptedPassword);
                     string subject = string.Format("Statistic for server {0} at {1} on map {2} at the time {3} {4}", server.Name, server.AddressAndPort(),
                         server.Map, DateTime.Now.ToShortDateString(), DateTime.Now.ToLongTimeString());
-                    string body = GenerateBody(server, allTimePlayers);
+                    string body = GenerateBody(server, roundTimePlayers);
                     foreach (var address in GmailSettings.SendToAddressesList())
                     {
                         sendMail.Send(address, subject, body);
