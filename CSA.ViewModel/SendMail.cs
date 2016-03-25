@@ -9,37 +9,28 @@ namespace CSA.ViewModel
 {
     public class SendMail
     {
-        public SendMail() :
-            this(null, null)
-        {
-        }
-
-        public SendMail(string gmailUser, string gmailEncriptedPassword)
+        public SendMail(string gmailUser, string gmailEncriptedPassword, string gmailSmtpAddress, int gmailSmtpPort)
         {
             GmailUser = gmailUser;
             GmailEncryptedPassword = gmailEncriptedPassword;
+            GmailSmtpAddress = gmailSmtpAddress;
+            GmailSmtpPort = gmailSmtpPort;
         }
 
         private string GmailUser;
         private string GmailEncryptedPassword;
-
-
-        private void ReadUserAndPasswordFromRegistry()
-        {
-            Common.Logger.TraceWriteLine("Read registry.");
-            GmailRegistrySettings regSet = new GmailRegistrySettings();
-            GmailUser = regSet.GMailUser;
-            GmailEncryptedPassword = regSet.GMailPass;
-        }
+        private string GmailSmtpAddress;
+        private int GmailSmtpPort;
 
         public void Send(string to, string subject, string body)
         {
-            if (string.IsNullOrEmpty(GmailUser) || string.IsNullOrEmpty(GmailEncryptedPassword))
-                ReadUserAndPasswordFromRegistry();
             System.Net.NetworkCredential credential;
-            credential = new System.Net.NetworkCredential(GmailUser, GmailEncryptedPassword.Decrypt());
+            System.Security.SecureString secStr = new System.Security.SecureString();
+            foreach (var c in GmailEncryptedPassword.Decrypt())
+                secStr.AppendChar(c);
+            credential = new System.Net.NetworkCredential(GmailUser, secStr);
 
-            CSA.Common.SendMail sm = new Common.SendMail("smtp.gmail.com", 587, credential);
+            CSA.Common.SendMail sm = new Common.SendMail(GmailSmtpAddress, GmailSmtpPort, credential);
             sm.Send(to, subject, body);
         }
     }

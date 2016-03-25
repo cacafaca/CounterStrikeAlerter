@@ -57,6 +57,38 @@ namespace CSA.Reporter
             }
         }
 
+        [ConfigurationProperty("GmailSmtpAddress",
+        DefaultValue = "smtp.gmail.com",
+        IsRequired = true,
+        IsKey = true)]
+        public string GmailSmtpAddress
+        {
+            get
+            {
+                return (string)this[nameof(GmailSmtpAddress)];
+            }
+            set
+            {
+                this[nameof(GmailSmtpAddress)] = value;
+            }
+        }
+
+        [ConfigurationProperty("GmailSmtpPort",
+        DefaultValue = "587",
+        IsRequired = true,
+        IsKey = true)]
+        public int GmailSmtpPort
+        {
+            get
+            {
+                return (int)this[nameof(GmailSmtpPort)];
+            }
+            set
+            {
+                this[nameof(GmailSmtpPort)] = value;
+            }
+        }
+
         public GmailSettings()
         {
             ConfigMap = new ExeConfigurationFileMap();

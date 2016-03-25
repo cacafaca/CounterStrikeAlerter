@@ -106,10 +106,10 @@ namespace CSA.ViewModel
                     messageBody.AppendLine("</tbody>");
                     messageBody.AppendLine("</table>");
                     messageBody.AppendLine("</html>");
-                    SendMail sm = new SendMail();
-                    foreach (var adr in addresses)
-                        if (!string.IsNullOrWhiteSpace(adr))
-                            sm.Send(adr,
+                    SendMail sm = new SendMail(RegistrySettings.GMailUser, RegistrySettings.GMailPass, RegistrySettings.GMailSmtpAddress, RegistrySettings.GMailSmtpPort);
+                    foreach (var toAdr in addresses)
+                        if (!string.IsNullOrWhiteSpace(toAdr))
+                            sm.Send(toAdr,
                                 string.Format("Players changed on server '{0}'. Map '{1}", _Server.ServerModel.Name, _Server.ServerModel.Map),
                                 messageBody.ToString());
                 }

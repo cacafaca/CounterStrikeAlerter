@@ -86,5 +86,36 @@ namespace CSA.Common
             }
         }
 
+        public string GMailSmtpAddress
+        {
+            get
+            {
+                string smtpAddress = (string)CsaKey.GetValue(nameof(GMailSmtpAddress));
+                if (string.IsNullOrWhiteSpace(smtpAddress))
+                    smtpAddress = "smtp.gmail.com";
+                return smtpAddress;
+            }
+            set
+            {
+                CsaKey.SetValue(nameof(GMailSmtpAddress), value);
+            }
+        }
+
+        public int GMailSmtpPort
+        {
+            get
+            {
+                string portStr = (string)CsaKey.GetValue(nameof(GMailSmtpPort));
+                int port;
+                if (!int.TryParse(portStr, out port))
+                    port = 587;
+                return port;
+            }
+            set
+            {
+                CsaKey.SetValue(nameof(GMailSmtpPort), value);
+            }
+        }
+
     }
 }

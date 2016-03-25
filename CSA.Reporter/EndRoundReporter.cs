@@ -129,7 +129,8 @@ namespace CSA.Reporter
             {
                 try
                 {
-                    CSA.ViewModel.SendMail sendMail = new ViewModel.SendMail(GmailSettings.GmailUser, GmailSettings.GmailEncryptedPassword);
+                    CSA.ViewModel.SendMail sendMail = new ViewModel.SendMail(GmailSettings.GmailUser, GmailSettings.GmailEncryptedPassword, 
+                        GmailSettings.GmailSmtpAddress, GmailSettings.GmailSmtpPort);
                     string subject = string.Format("Statistic for server {0} at {1} on map {2} at the time {3} {4}", server.Name, server.AddressAndPort(),
                         server.Map, DateTime.Now.ToShortDateString(), DateTime.Now.ToLongTimeString());
                     string body = GenerateBody(server, roundTimePlayers);
